@@ -200,12 +200,13 @@ const stars = Array.from({ length: STAR_COUNT }, (_, i) => {
         <div class="portrait-halo" aria-hidden="true"></div>
         <div class="portrait-spotlight" aria-hidden="true"></div>
         <img
-          src="/profile-withoutbg.png"
+          src="/profile-withoutbg.webp"
           alt={`Portrait of ${firstName} ${lastName}`}
           width="420"
           height="594"
           loading="eager"
           decoding="async"
+          fetchpriority="high"
           class="portrait-img relative block w-full h-auto"
         />
       </div>
