@@ -516,4 +516,35 @@ const stars = Array.from({ length: STAR_COUNT }, (_, i) => {
   @media (prefers-reduced-motion: reduce) {
     .scroll-cue-line { animation: none; }
   }
+
+  /* Mobile performance — the hero piles up a lot of GPU-heavy work
+     (filter: blur with 70–96px radius on the blobs and halos,
+     mix-blend-mode: screen on the spotlight, 90 absolutely positioned
+     animated stars, and continuous text-shine repaints on the role
+     line). On low-end phones this dominates the first frame budget and
+     stalls scroll, so below 768px we strip the decorative motion and
+     drop the starfield entirely. The composition stays — gradients
+     and the portrait halo render as static fills — only the animation
+     loops are removed. */
+  @media (max-width: 768px) {
+    .hero-stars { display: none; }
+    .hero-blob { animation: none; }
+    .portrait-halo,
+    .portrait-spotlight {
+      animation: none;
+      filter: blur(40px);
+    }
+    .portrait-img {
+      animation: none;
+      will-change: auto;
+    }
+    .hero-role {
+      animation: none;
+      background-image: none;
+      -webkit-text-fill-color: var(--color-fg);
+              color: var(--color-fg);
+    }
+    .hero-name-dot { animation: none; }
+    .scroll-cue-line { animation: none; }
+  }
 </style>
