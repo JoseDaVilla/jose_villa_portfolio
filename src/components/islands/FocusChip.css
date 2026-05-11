@@ -1,0 +1,83 @@
+/* Solid pill — full saturated bg in the active hue, bg-color text for
+   high contrast in either theme. No border. A short colored drop-shadow
+   gives the chip a sense of weight on the page. All colored properties
+   transition together so the chip morphs smoothly between phrases. */
+.focus-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.32rem 0.78rem 0.32rem 0.6rem;
+  border-radius: 999px;
+  background-color: var(--chip-color);
+  color: var(--color-bg);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  line-height: 1.3;
+  white-space: nowrap;
+  box-shadow:
+    0 1px 0 color-mix(in srgb, white 22%, transparent) inset,
+    0 8px 24px -10px color-mix(in srgb, var(--chip-color) 60%, transparent);
+  transition:
+    background-color 700ms var(--ease-brand),
+    color           700ms var(--ease-brand),
+    box-shadow      700ms var(--ease-brand);
+}
+
+.dark .focus-chip {
+  box-shadow:
+    0 1px 0 color-mix(in srgb, white 18%, transparent) inset,
+    0 10px 30px -12px color-mix(in srgb, var(--chip-color) 70%, transparent);
+}
+
+/* Leading pulse dot — solid core + an outward ring that fades out, matched
+   to the rotation cadence so each new phrase lands on a fresh pulse. */
+.focus-chip-dot {
+  position: relative;
+  display: inline-flex;
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+}
+.focus-chip-dot::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--color-bg) 80%, transparent);
+}
+.focus-chip-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--color-bg);
+  opacity: 0.6;
+  animation: focus-chip-pulse 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+@keyframes focus-chip-pulse {
+  0%   { transform: scale(1);   opacity: 0.55; }
+  70%  { transform: scale(2.6); opacity: 0;    }
+  100% { transform: scale(2.6); opacity: 0;    }
+}
+
+/* The wrapper that contains the rotating word — keeps text on the chip's
+   baseline and gives the per-character motion its clipping band. */
+.focus-chip-text {
+  display: inline-flex;
+  align-items: baseline;
+}
+.focus-chip-word {
+  display: inline-flex;
+  overflow: hidden;
+  /* a hair of vertical breathing room so descenders + tracking fit cleanly */
+  padding-bottom: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .focus-chip-dot::after { animation: none; opacity: 0; }
+  .focus-chip { transition: none; }
+}

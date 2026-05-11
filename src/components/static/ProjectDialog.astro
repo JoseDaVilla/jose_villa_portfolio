@@ -1,0 +1,292 @@
+---
+// src/components/static/ProjectDialog.astro
+import { Image, getImage } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  id: string;
+  project: CollectionEntry<'projects'>;
+  Body?: any; // rendered markdown <Content /> component, when body exists
+}
+
+const { id, project, Body } = Astro.props;
+const data = project.data;
+
+// When embedUrl is set, the media column becomes an interactive iframe of
+// the live deployment instead of an image carousel (used for the WebGL/3D
+// projects where a screenshot doesn't convey the experience).
+const embedUrl = data.embedUrl;
+
+// Flatten cover + gallery into a single ordered media list. The first item
+// is treated as the hero (cover) when present.
+type RawItem = { src: any; alt: string };
+const rawMedia: RawItem[] = embedUrl ? [] : [
+  ...(data.coverImage ? [{ src: data.coverImage, alt: `${data.title} cover` }] : []),
+  ...((data.gallery ?? []).map((img: any, i: number) => ({
+    src: img,
+    alt: `${data.title} screenshot ${i + 1}`,
+  }))),
+];
+
+// Pre-compute a high-res WebP variant for fullscreen viewing
+const media = await Promise.all(
+  rawMedia.map(async (m) => {
+    const fs = await getImage({ src: m.src, format: 'webp', quality: 92, width: 1920 });
+    return { ...m, fullscreenSrc: fs.src };
+  })
+);
+const hasMultiple = media.length > 1;
+const microLabel = 'text-[10.5px] font-mono uppercase tracking-[1.5px] text-fg-faint';
+---
+<dialog
+  id={`project-dialog-${id}`}
+  aria-labelledby={`project-dialog-${id}-title`}
+  class="project-dialog"
+>
+  <article class="bg-bg border border-line/50 rounded-xl shadow-2xl
+                  text-fg overflow-hidden flex flex-col max-h-[calc(100vh-4rem)]">
+
+    {/* Sticky header */}
+    <header class="flex items-start gap-4 px-6 pt-5 pb-4 border-b border-line/40
+                   bg-bg-secondary/60 backdrop-blur-sm">
+      <div class="flex-1 min-w-0">
+        <p class={microLabel}>
+          {data.year}{data.period ? ` · ${data.period}` : ''}
+        </p>
+        <h2
+          id={`project-dialog-${id}-title`}
+          class="text-[20px] font-medium tracking-[-0.3px] text-fg mt-1 truncate"
+        >
+          {data.title}
+        </h2>
+      </div>
+
+      <button
+        type="button"
+        data-dialog-close
+        aria-label="Close project details"
+        class="shrink-0 -mr-1 -mt-1 w-9 h-9 rounded-full inline-flex items-center
+               justify-center text-fg-faint hover:text-fg hover:bg-card-hover
+               transition-colors duration-base ease-brand
+               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+        </svg>
+      </button>
+    </header>
+
+    {/* Body — independent scroll per column on md+ */}
+    <div class="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+
+      {/* LEFT — media (mobile carousel / desktop dedicated-scroll vertical stack) */}
+      <div class="bg-bg-secondary/40 p-5 md:p-6 md:border-r md:border-line/40
+                  md:overflow-y-auto [scrollbar-width:thin]">
+        {embedUrl ? (
+          <div class="relative w-full aspect-[4/3] md:aspect-auto md:h-full md:min-h-[520px]
+                      rounded-lg overflow-hidden border border-line/40 bg-bg">
+            <iframe
+              src={embedUrl}
+              title={`${data.title} — live preview`}
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              allow="accelerometer; gyroscope; fullscreen; xr-spatial-tracking"
+              sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+              class="absolute inset-0 w-full h-full block bg-bg"
+            ></iframe>
+          </div>
+        ) : media.length === 0 ? (
+          <div class="aspect-[4/3] rounded-lg border border-dashed border-line/60
+                      flex items-center justify-center text-fg-faint text-[12px]">
+            No imagery yet
+          </div>
+        ) : (
+          <div data-carousel-wrapper class="relative">
+            <div
+              data-carousel-track
+              class="flex gap-3 overflow-x-auto snap-x snap-mandatory scroll-smooth
+                     md:flex-col md:overflow-visible md:snap-none
+                     [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {media.map((m) => (
+                <button
+                  type="button"
+                  data-fullscreen-trigger
+                  data-fullscreen-src={m.fullscreenSrc}
+                  data-fullscreen-alt={m.alt}
+                  aria-label={`View ${m.alt} fullscreen`}
+                  class="shrink-0 grow-0 basis-full md:basis-auto snap-center
+                         relative block w-full rounded-lg overflow-hidden
+                         border border-line/40 bg-bg group/img cursor-zoom-in
+                         transition-[border-color,transform] duration-base ease-brand
+                         hover:border-accent/50 active:scale-[0.995]
+                         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                >
+                  <Image
+                    src={m.src}
+                    alt={m.alt}
+                    widths={[480, 720, 1080]}
+                    sizes="(min-width: 768px) 480px, 100vw"
+                    format="webp"
+                    quality={85}
+                    class="w-full h-auto block"
+                  />
+                  {/* Fullscreen affordance — shows on hover */}
+                  <span
+                    class="absolute top-2 right-2 inline-flex items-center justify-center
+                           w-8 h-8 rounded-md bg-bg/85 backdrop-blur-sm border border-line/50
+                           text-fg-muted opacity-0 translate-y-1
+                           group-hover/img:opacity-100 group-hover/img:translate-y-0
+                           group-focus-visible/img:opacity-100
+                           transition-[opacity,transform] duration-base ease-brand
+                           pointer-events-none"
+                    aria-hidden="true"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M3 9V3h6"/><path d="M21 9V3h-6"/>
+                      <path d="M3 15v6h6"/><path d="M21 15v6h-6"/>
+                    </svg>
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            {hasMultiple && (
+              <>
+                {/* Arrows — mobile only */}
+                <button
+                  type="button"
+                  data-carousel-action="prev"
+                  aria-label="Previous image"
+                  class="md:hidden absolute left-2 top-1/2 -translate-y-1/2
+                         w-9 h-9 rounded-full inline-flex items-center justify-center
+                         bg-bg/85 backdrop-blur-sm border border-line/50 text-fg
+                         shadow-md hover:bg-bg active:scale-95
+                         transition-[transform,background-color] duration-base ease-brand
+                         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                       stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="m15 18-6-6 6-6"/>
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  data-carousel-action="next"
+                  aria-label="Next image"
+                  class="md:hidden absolute right-2 top-1/2 -translate-y-1/2
+                         w-9 h-9 rounded-full inline-flex items-center justify-center
+                         bg-bg/85 backdrop-blur-sm border border-line/50 text-fg
+                         shadow-md hover:bg-bg active:scale-95
+                         transition-[transform,background-color] duration-base ease-brand
+                         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                       stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="m9 18 6-6-6-6"/>
+                  </svg>
+                </button>
+
+                {/* Pagination dots — mobile only */}
+                <div class="md:hidden flex items-center justify-center gap-1.5 mt-3">
+                  {media.map((_, i) => (
+                    <button
+                      type="button"
+                      data-carousel-dot
+                      data-index={i}
+                      aria-label={`Go to image ${i + 1}`}
+                      class="w-1.5 h-1.5 rounded-full bg-fg-faint/30
+                             data-[active]:bg-accent data-[active]:w-4
+                             transition-[background-color,width] duration-base ease-brand
+                             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                    ></button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* RIGHT — copy + meta + actions (independent scroll on md+) */}
+      <div class="p-5 md:p-7 space-y-6 md:overflow-y-auto [scrollbar-width:thin]">
+        {data.role && (
+          <div class="flex items-center gap-3">
+            <span class={microLabel}>Role</span>
+            <span class="text-[12.5px] text-fg">{data.role}</span>
+          </div>
+        )}
+
+        <div
+          class="prose prose-sm max-w-none text-fg-muted leading-[1.75]
+                 [&_p]:mb-3 [&_p:last-child]:mb-0
+                 [&_strong]:text-fg [&_strong]:font-medium
+                 [&_h3]:text-fg [&_h3]:font-medium [&_h3]:text-[14px] [&_h3]:mt-5 [&_h3]:mb-2
+                 [&_ul]:my-3 [&_ul]:pl-5 [&_ul]:list-disc [&_li]:mb-1
+                 [&_a]:text-accent [&_a]:underline-offset-4 [&_a]:underline [&_a]:decoration-line
+                 [&_a:hover]:decoration-accent
+                 [&_code]:bg-bg-secondary [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded
+                 [&_code]:text-[12.5px] [&_code]:font-mono"
+        >
+          {Body ? <Body /> : <p>{data.tagline}</p>}
+        </div>
+
+        <div class="border-t border-line/40 pt-5">
+          <p class={microLabel}>Tech stack</p>
+          <ul class="mt-2.5 grid grid-cols-2 gap-x-4 gap-y-1.5">
+            {data.tags.map((t: string) => (
+              <li class="flex items-center gap-2 text-[12.5px] text-fg-muted">
+                <span class="inline-block w-1 h-1 rounded-full bg-accent shrink-0"></span>
+                {t}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {(data.liveUrl || data.repoUrl) && (
+          <div class="flex flex-wrap items-center gap-3 pt-1">
+            {data.liveUrl && (
+              <a
+                href={data.liveUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-1.5 bg-accent text-bg
+                       px-4 py-2 rounded-md text-[12.5px] font-medium tracking-[0.3px]
+                       hover:bg-accent/90 active:translate-y-[1px]
+                       transition-[background-color,transform] duration-base ease-brand
+                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent
+                       focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+              >
+                Visit live site
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M7 7h10v10"/><path d="M7 17 17 7"/>
+                </svg>
+              </a>
+            )}
+            {data.repoUrl && (
+              <a
+                href={data.repoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-1.5 text-fg-muted hover:text-fg
+                       px-4 py-2 rounded-md text-[12.5px] font-medium tracking-[0.3px]
+                       border border-line hover:border-fg-muted/40
+                       transition-colors duration-base ease-brand
+                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                View source
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M7 7h10v10"/><path d="M7 17 17 7"/>
+                </svg>
+              </a>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  </article>
+</dialog>

@@ -1,0 +1,48 @@
+---
+// src/lib/seo.astro
+interface Props {
+  title: string;
+  description: string;
+  image?: string;       // path like /og/default.png — resolved against site
+}
+const { title, description, image = '/og/default.png' } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site).toString();
+const imageUrl = new URL(image, Astro.site).toString();
+
+const personJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Jose Daniel Villa',
+  jobTitle: 'Lead Full-Stack Developer',
+  url: Astro.site?.toString(),
+  email: 'mailto:josedvilla18@gmail.com',
+  sameAs: [
+    'https://github.com/JoseDaVilla/',
+    'https://www.linkedin.com/in/jose-daniel-villa-712133204',
+  ],
+};
+
+const siteJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Jose Daniel Villa — Portfolio',
+  url: Astro.site?.toString(),
+};
+---
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+
+<meta property="og:type" content="website" />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={imageUrl} />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={imageUrl} />
+
+<script type="application/ld+json" set:html={JSON.stringify(personJsonLd)} />
+<script type="application/ld+json" set:html={JSON.stringify(siteJsonLd)} />

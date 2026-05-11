@@ -1,0 +1,112 @@
+---
+// src/components/static/TopNav.astro
+import ThemeToggle from '../islands/ThemeToggle';
+
+interface Props {
+  monogram?: string;
+  name?: string;
+}
+const { monogram = 'JDV', name = 'Jose Daniel Villa' } = Astro.props;
+---
+<header class="sticky top-0 z-40 topnav-shell">
+  <div class="mx-auto max-w-[1240px] px-6 sm:px-10 lg:px-14
+              h-[64px] flex items-center justify-between gap-6">
+
+    <a
+      href="#top"
+      aria-label={name}
+      class="group inline-flex items-baseline gap-2.5 shrink-0
+             focus-visible:outline-none focus-visible:ring-2
+             focus-visible:ring-accent focus-visible:ring-offset-2
+             focus-visible:ring-offset-bg rounded-sm"
+    >
+      <span class="font-display text-[20px] leading-none text-fg
+                   transition-colors duration-base ease-brand
+                   group-hover:text-accent">
+        {monogram}
+      </span>
+      <span class="hidden sm:inline-block w-px h-3 bg-line"></span>
+      <span class="hidden sm:inline-block font-mono text-[10.5px] uppercase
+                   tracking-[0.18em] text-fg-faint">
+        Portfolio &mdash; 2026
+      </span>
+    </a>
+
+    <nav aria-label="Primary" class="hidden md:block">
+      <ul class="flex items-center gap-1">
+        {[
+          { id: 'about',      label: 'About' },
+          { id: 'experience', label: 'Experience' },
+          { id: 'work',       label: 'Work' },
+          { id: 'contact',    label: 'Contact' },
+        ].map(({ id, label }) => (
+          <li>
+            <a
+              href={`#${id}`}
+              data-section={id}
+              class="topnav-link relative inline-flex items-center px-3 py-2
+                     font-mono text-[11px] uppercase tracking-[0.18em]
+                     text-fg-faint hover:text-fg transition-colors duration-base
+                     ease-brand data-[active=true]:text-fg
+                     focus-visible:outline-none focus-visible:ring-2
+                     focus-visible:ring-accent rounded-sm"
+            >
+              {label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="flex items-center gap-3">
+      <a
+        href="#contact"
+        class="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5
+               font-mono text-[11px] uppercase tracking-[0.18em]
+               text-fg border border-line rounded-full
+               hover:border-accent hover:text-accent
+               transition-colors duration-base ease-brand"
+      >
+        <span class="relative inline-flex w-1.5 h-1.5">
+          <span class="absolute inset-0 rounded-full bg-accent opacity-75 animate-ping"></span>
+          <span class="relative inline-block w-1.5 h-1.5 rounded-full bg-accent"></span>
+        </span>
+        Available
+      </a>
+      <ThemeToggle client:load />
+    </div>
+  </div>
+</header>
+
+<style>
+  /* Underline indicator that grows from the center on hover and locks in
+     when ScrollSpy marks the link active. */
+  .topnav-link::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 6px;
+    height: 1px;
+    width: 0;
+    background: currentColor;
+    transform: translateX(-50%);
+    transition: width 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .topnav-link:hover::after,
+  .topnav-link[data-active="true"]::after {
+    width: calc(100% - 24px);
+  }
+</style>
+
+<script is:inline>
+  // Toggle body[data-scrolled] so the nav grows a hairline border once the
+  // page has scrolled past the hero — keeps the top of the page airy.
+  (function () {
+    const update = () => {
+      if (window.scrollY > 12) document.body.setAttribute('data-scrolled', '');
+      else document.body.removeAttribute('data-scrolled');
+    };
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+  })();
+</script>

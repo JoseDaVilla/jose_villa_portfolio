@@ -1,0 +1,17 @@
+---
+// src/components/static/Icon.astro
+interface Props {
+  name: 'github' | 'linkedin' | 'mail' | 'sun' | 'moon';
+  class?: string;
+}
+const { name, class: className = '' } = Astro.props;
+
+const icons = import.meta.glob<{ default: string }>('../../assets/icons/*.svg', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+});
+const svg = icons[`../../assets/icons/${name}.svg`];
+if (!svg) throw new Error(`Icon "${name}" not found in src/assets/icons/`);
+---
+<span class={className} aria-hidden="true" set:html={svg} />

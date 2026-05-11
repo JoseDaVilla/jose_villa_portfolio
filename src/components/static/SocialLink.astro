@@ -1,0 +1,19 @@
+---
+// src/components/static/SocialLink.astro
+import Icon from './Icon.astro';
+interface Props {
+  href: string;
+  label: string;
+  icon: 'github' | 'linkedin' | 'mail';
+}
+const { href, label, icon } = Astro.props;
+---
+<a
+  href={href}
+  aria-label={label}
+  class="text-fg-faint hover:text-accent transition-colors duration-base ease-brand
+         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent
+         focus-visible:ring-offset-2 focus-visible:ring-offset-bg rounded-sm"
+>
+  <Icon name={icon} class="w-5 h-5" />
+</a>

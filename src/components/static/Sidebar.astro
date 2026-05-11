@@ -1,0 +1,64 @@
+---
+// src/components/static/Sidebar.astro
+import { Image } from 'astro:assets';
+import NavLink from './NavLink.astro';
+import SocialLink from './SocialLink.astro';
+import ThemeToggle from '../islands/ThemeToggle';
+import profileImg from '../../assets/profile.jpeg';
+
+interface Props {
+  name: string;
+  title: string;
+  tagline: string;
+  socials: { github: string; linkedin: string; email: string };
+}
+const { name, title, tagline, socials } = Astro.props;
+---
+<aside class="lg:sticky lg:top-0 lg:h-screen lg:max-h-screen lg:py-24 flex flex-col">
+  <div class="text-center">
+    <a
+      href="#about"
+      aria-label={`${name} — about`}
+      class="block w-fit mx-auto mb-7 group/avatar"
+    >
+      <div
+        class="w-[180px] h-[180px] rounded-full overflow-hidden bg-bg-secondary
+               transition-transform duration-slow ease-brand
+               group-hover/avatar:scale-[1.03]"
+      >
+        <Image
+          src={profileImg}
+          alt={name}
+          width={220}
+          height={220}
+          densities={[1, 2]}
+          format="webp"
+          quality={90}
+          loading="eager"
+          class="w-full h-full object-cover object-[center_15%] scale-[0.92]"
+        />
+      </div>
+    </a>
+
+    <h1 class="text-[22px] font-medium tracking-[-0.3px] text-fg mb-1">{name}</h1>
+    <p class="text-sm font-medium text-fg mb-3">{title}</p>
+    <p class="text-[12.5px] text-fg-faint leading-snug max-w-[210px] mx-auto mb-8">{tagline}</p>
+
+    <nav aria-label="Primary" class="mb-9 flex justify-center">
+      <ul class="space-y-2.5 inline-block text-left">
+        <li><NavLink href="#about" label="About" section="about" /></li>
+        <li><NavLink href="#experience" label="Experience" section="experience" /></li>
+        <li><NavLink href="#work" label="Work" section="work" /></li>
+        <li><NavLink href="#contact" label="Contact" section="contact" /></li>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="flex items-center justify-center gap-[18px]">
+    <SocialLink href={socials.github}   label="GitHub"   icon="github" />
+    <SocialLink href={socials.linkedin} label="LinkedIn" icon="linkedin" />
+    <SocialLink href={`mailto:${socials.email}`} label="Email" icon="mail" />
+    <span class="w-px h-4 bg-line mx-1"></span>
+    <ThemeToggle client:load />
+  </div>
+</aside>

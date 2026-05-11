@@ -1,0 +1,398 @@
+---
+// src/pages/index.astro
+import { getCollection, render } from 'astro:content';
+// about.md is not in a content collection — import it directly as a markdown module.
+// Astro turns markdown into a module that exports `Content` (a component) and `frontmatter`.
+import { Content as AboutContent } from '../content/about.md';
+
+import BaseLayout      from '../layouts/BaseLayout.astro';
+import TopNav          from '../components/static/TopNav.astro';
+import Hero            from '../components/static/Hero.astro';
+import Masthead        from '../components/static/Masthead.astro';
+import Footer          from '../components/static/Footer.astro';
+import Section         from '../components/static/Section.astro';
+import Card            from '../components/static/Card.astro';
+import Tag             from '../components/static/Tag.astro';
+import ArrowIcon       from '../components/static/ArrowIcon.astro';
+import ViewMoreLink    from '../components/static/ViewMoreLink.astro';
+import ProjectDialog   from '../components/static/ProjectDialog.astro';
+import Lightbox        from '../components/static/Lightbox.astro';
+import ScrollSpy       from '../components/islands/ScrollSpy';
+import Reveal, { RevealItem } from '../components/islands/Reveal';
+import ContactForm     from '../components/islands/ContactForm';
+
+const experienceEntries = await getCollection('experience');
+// Sort by `order` so frontmatter controls display sequence (lower = higher
+// on the page) — newest/most-prominent role goes first regardless of filename.
+const sortedExperience = [...experienceEntries].sort((a, b) => a.data.order - b.data.order);
+// Pre-render markdown bodies to <Content> components so JSX iteration stays sync.
+const experience = await Promise.all(
+  sortedExperience.map(async (entry) => {
+    const { Content } = await render(entry);
+    return { ...entry, Content };
+  })
+);
+
+const allProjects = await getCollection('projects');
+const selectedRaw = allProjects
+  .filter(p => p.data.category === 'selected')
+  .sort((a, b) => a.data.order - b.data.order);
+const otherRaw = allProjects
+  .filter(p => p.data.category === 'other')
+  .sort((a, b) => a.data.order - b.data.order);
+
+// Pre-render each project's markdown body into a sync <Body /> component
+// so we can pass it into the dialog without async work in the JSX iteration.
+// Both selected and other projects open the same dialog component.
+const selected = await Promise.all(
+  selectedRaw.map(async (p) => {
+    const { Content } = await render(p);
+    return { ...p, Body: Content };
+  })
+);
+const other = await Promise.all(
+  otherRaw.map(async (p) => {
+    const { Content } = await render(p);
+    return { ...p, Body: Content };
+  })
+);
+
+const socials = {
+  github:   'https://github.com/JoseDaVilla/',
+  linkedin: 'https://www.linkedin.com/in/jose-daniel-villa-712133204',
+  email:    'josedvilla18@gmail.com',
+};
+---
+<BaseLayout
+  title="Jose Daniel Villa — Lead Full-Stack Developer"
+  description="I build the systems businesses actually run on. Production SaaS, lead marketplaces, POS systems, and immersive 3D web experiences. Based in Medellín, Colombia."
+>
+  <TopNav monogram="JV" name="Jose Villa" />
+
+  {/* Hero + Masthead share the first viewport: hero fills the remaining space
+      and the toolkit strip is anchored to the bottom of the fold so it is
+      always visible regardless of viewport height. */}
+  <div class="flex flex-col min-h-[100dvh]">
+    <Hero
+      firstName="Jose"
+      lastName="Villa"
+      role="Full-Stack Developer"
+      tagline="I build the systems businesses actually run on — production SaaS, lead marketplaces, POS platforms, and immersive 3D web experiences."
+      location="Medellín, Colombia"
+      focus="SaaS · POS · 3D Web"
+      socials={socials}
+    />
+    <Masthead />
+  </div>
+
+  <main
+    id="main"
+    class="mx-auto max-w-[1240px] px-6 sm:px-10 lg:px-14
+           [&>div:first-child_section]:border-t-0
+           [&>div:first-child_section]:pt-16"
+  >
+
+    <Reveal client:visible>
+      <Section id="about" title="About" index="01 — Origin" eyebrow="Who I am · what I work on" tone="indigo">
+        <div class="available-chip">
+          <span class="available-chip-dot" aria-hidden="true">
+            <span class="available-chip-pulse"></span>
+          </span>
+          Available for select engagements
+        </div>
+
+        <div class="prose prose-base max-w-none text-fg-muted text-[15.5px] leading-[1.75]
+                    [&_strong]:text-fg [&_strong]:font-medium space-y-4">
+          <AboutContent />
+        </div>
+
+        {/* Stat tiles — animated count-up on first viewport entry. Each tile
+            sets --stat-color so the value renders in its own hue from the
+            secondary palette, tying the trio into the page's color story. */}
+        <div data-stat-grid class="grid grid-cols-3 gap-6 mt-10 pt-8 border-t border-line/40">
+          <div data-stat data-count="30" data-format="plus" class="stat-tile" style="--stat-color: var(--color-indigo);">
+            <p class="font-display text-[44px] leading-none stat-value">0</p>
+            <p class="font-mono text-[10px] text-fg-faint uppercase tracking-[0.2em] mt-3">
+              US locations
+            </p>
+          </div>
+          <div data-stat data-count="1000" data-format="k" class="stat-tile" style="--stat-color: var(--color-cyan);">
+            <p class="font-display text-[44px] leading-none stat-value">0</p>
+            <p class="font-mono text-[10px] text-fg-faint uppercase tracking-[0.2em] mt-3">
+              Leads / day
+            </p>
+          </div>
+          <div data-stat class="stat-tile" style="--stat-color: var(--color-pink);">
+            <p class="font-display font-display-italic text-[44px] leading-none stat-value">
+              Live
+            </p>
+            <p class="font-mono text-[10px] text-fg-faint uppercase tracking-[0.2em] mt-3">
+              Trading systems
+            </p>
+          </div>
+        </div>
+      </Section>
+    </Reveal>
+
+    <Reveal client:visible>
+      <Section id="experience" title="Experience" index="02 — Track record" eyebrow="Roles & engagements" wide tone="cyan">
+        <Reveal client:visible stagger>
+          <div class="border-t border-line/60">
+            {experience.map((entry) => {
+              const { Content } = entry;
+              return (
+                <RevealItem client:visible>
+                  <Card meta={entry.data.period} href={entry.data.companyUrl}>
+                    <p class="text-fg font-medium text-[15px] leading-snug
+                              group-hover:text-accent transition-colors duration-base ease-brand">
+                      {entry.data.role} <span class="text-fg-faint">·</span> {entry.data.company} <ArrowIcon />
+                    </p>
+                    <div class="text-fg-muted text-[13.5px] mt-2 leading-[1.7]
+                                [&_strong]:text-fg [&_strong]:font-medium">
+                      <Content />
+                    </div>
+                    <div class="flex flex-wrap gap-1.5 mt-3.5">
+                      {entry.data.tags.map(t => <Tag label={t} />)}
+                    </div>
+                  </Card>
+                </RevealItem>
+              );
+            })}
+          </div>
+        </Reveal>
+      </Section>
+    </Reveal>
+
+    <Reveal client:visible>
+      <Section id="work" title="Selected work" index="03 — Built & shipped" eyebrow="Production systems · client products" wide tone="pink">
+        <Reveal client:visible stagger>
+          <div class="border-t border-line/60">
+            {selected.map(p => (
+              <RevealItem client:visible>
+                <Card meta={String(p.data.year)} dialogId={p.id}>
+                  <p class="text-fg font-medium text-[15px] leading-snug
+                            group-hover:text-accent transition-colors duration-base ease-brand">
+                    {p.data.title} <ArrowIcon />
+                  </p>
+                  <p class="text-fg-muted text-[13.5px] mt-2 leading-[1.7]">
+                    {p.data.tagline}
+                  </p>
+                  <div class="flex flex-wrap gap-1.5 mt-3.5">
+                    {p.data.tags.map(t => <Tag label={t} />)}
+                  </div>
+                </Card>
+              </RevealItem>
+            ))}
+          </div>
+        </Reveal>
+        <div class="mt-8">
+          <ViewMoreLink href="#" label="View archive" />
+        </div>
+      </Section>
+    </Reveal>
+
+    <Reveal client:visible>
+      <Section id="other" title="Other noteworthy" index="04 — Also worth a look" wide tone="orange">
+        <Reveal client:visible stagger>
+          <div class="border-t border-line/60">
+            {other.map(p => (
+              <RevealItem client:visible>
+                <Card meta={String(p.data.year)} dialogId={p.id}>
+                  <p class="text-fg font-medium text-[15px] leading-snug
+                            group-hover:text-accent transition-colors duration-base ease-brand">
+                    {p.data.title} <ArrowIcon />
+                  </p>
+                  <p class="text-fg-muted text-[13.5px] mt-2 leading-[1.7]">
+                    {p.data.tagline}
+                  </p>
+                  {p.data.tags && p.data.tags.length > 0 && (
+                    <div class="flex flex-wrap gap-1.5 mt-3.5">
+                      {p.data.tags.map(t => <Tag label={t} />)}
+                    </div>
+                  )}
+                </Card>
+              </RevealItem>
+            ))}
+          </div>
+        </Reveal>
+      </Section>
+    </Reveal>
+
+    <Reveal client:visible>
+      <Section id="contact" title="Get in touch" index="05 — Let's talk" eyebrow="Replies within a day or two" tone="pink" centered>
+        <p class="text-fg-muted text-[15.5px] leading-[1.75] mb-8 max-w-[58ch] mx-auto text-center">
+          I'm taking on a small number of new engagements right now &mdash;
+          <strong class="text-fg font-medium">product builds</strong>,
+          <strong class="text-fg font-medium">technical leadership</strong>, or
+          <strong class="text-fg font-medium">process automation</strong>.
+          Send a note and I'll reply within a day or two.
+        </p>
+        <ContactForm client:load />
+      </Section>
+    </Reveal>
+
+  </main>
+
+  <Footer />
+
+  <ScrollSpy client:load />
+
+  {/* Project detail dialogs — one per project (selected + other), opened via
+      Card's data-project-trigger handler. */}
+  {selected.map(p => (
+    <ProjectDialog id={p.id} project={p} Body={p.Body} />
+  ))}
+  {other.map(p => (
+    <ProjectDialog id={p.id} project={p} Body={p.Body} />
+  ))}
+
+  {/* Single shared fullscreen image viewer */}
+  <Lightbox />
+
+  <script is:inline>
+    document.addEventListener('click', (e) => {
+      const target = e.target;
+      if (!(target instanceof Element)) return;
+
+      const trigger = target.closest('[data-project-trigger]');
+      if (trigger) {
+        const id = trigger.getAttribute('data-project-trigger');
+        const dlg = document.getElementById(`project-dialog-${id}`);
+        if (dlg && typeof dlg.showModal === 'function') dlg.showModal();
+        return;
+      }
+
+      const closeBtn = target.closest('[data-dialog-close]');
+      if (closeBtn) {
+        closeBtn.closest('dialog')?.close();
+        return;
+      }
+
+      // Image fullscreen — open shared lightbox
+      const fsTrigger = target.closest('[data-fullscreen-trigger]');
+      if (fsTrigger) {
+        const src = fsTrigger.getAttribute('data-fullscreen-src') || '';
+        const alt = fsTrigger.getAttribute('data-fullscreen-alt') || '';
+        const lb = document.getElementById('lightbox-dialog');
+        const img = document.getElementById('lightbox-img');
+        if (lb && img) {
+          img.src = src;
+          img.alt = alt;
+          if (typeof lb.showModal === 'function') lb.showModal();
+        }
+        return;
+      }
+
+      // Carousel arrow navigation (mobile)
+      const carouselBtn = target.closest('[data-carousel-action]');
+      if (carouselBtn) {
+        const dir = carouselBtn.getAttribute('data-carousel-action');
+        const wrapper = carouselBtn.closest('[data-carousel-wrapper]');
+        const track = wrapper && wrapper.querySelector('[data-carousel-track]');
+        if (track) {
+          const w = track.clientWidth;
+          track.scrollBy({ left: dir === 'next' ? w : -w, behavior: 'smooth' });
+        }
+        return;
+      }
+
+      // Carousel dot — jump to a specific slide
+      const dot = target.closest('[data-carousel-dot]');
+      if (dot) {
+        const wrapper = dot.closest('[data-carousel-wrapper]');
+        const track = wrapper && wrapper.querySelector('[data-carousel-track]');
+        const idx = parseInt(dot.getAttribute('data-index') || '0', 10);
+        if (track) {
+          track.scrollTo({ left: idx * track.clientWidth, behavior: 'smooth' });
+        }
+        return;
+      }
+
+      // Click on the project dialog's visual backdrop closes it.
+      if (target.matches('dialog.project-dialog')) {
+        target.close();
+        return;
+      }
+
+      // Lightbox closes on any click outside the image itself. The dialog
+      // covers the full viewport so we use closest() rather than matches(),
+      // and exclude the image element to keep its hit area inert.
+      const lightbox = target.closest('dialog.lightbox-dialog');
+      if (lightbox) {
+        if (target.closest('#lightbox-img')) return;
+        lightbox.close();
+      }
+    });
+
+    // Keep the active pagination dot in sync with the visible slide.
+    document.querySelectorAll('[data-carousel-track]').forEach((track) => {
+      const wrapper = track.closest('[data-carousel-wrapper]');
+      if (!wrapper) return;
+      const dots = wrapper.querySelectorAll('[data-carousel-dot]');
+      if (dots.length === 0) return;
+      const update = () => {
+        const idx = Math.round(track.scrollLeft / Math.max(track.clientWidth, 1));
+        dots.forEach((d, i) => {
+          if (i === idx) d.setAttribute('data-active', '');
+          else d.removeAttribute('data-active');
+        });
+      };
+      track.addEventListener('scroll', update, { passive: true });
+      update();
+    });
+
+    // Animated stat counters. Fires once when the grid scrolls into view.
+    (function () {
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const ease = (t) => 1 - Math.pow(1 - t, 3);
+
+      function format(value, kind) {
+        if (kind === 'k') {
+          if (value >= 1000) return '1k+';
+          const tenths = Math.round(value / 100) / 10;
+          return tenths.toFixed(1) + 'k+';
+        }
+        return value + '+';
+      }
+
+      function animate(el, target, kind, duration) {
+        const start = performance.now();
+        const tick = (now) => {
+          const t = Math.min((now - start) / duration, 1);
+          const v = Math.round(target * ease(t));
+          el.textContent = format(v, kind);
+          if (t < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      }
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const tiles = entry.target.querySelectorAll('[data-stat]');
+          tiles.forEach((tile, i) => {
+            const reveal = () => {
+              tile.setAttribute('data-revealed', '');
+              const target = tile.getAttribute('data-count');
+              const kind = tile.getAttribute('data-format') || 'plus';
+              if (!target) return;
+              const valueEl = tile.querySelector('.stat-value');
+              if (!valueEl) return;
+              const n = parseInt(target, 10);
+              if (reduce) {
+                valueEl.textContent = format(n, kind);
+              } else {
+                animate(valueEl, n, kind, 1200);
+              }
+            };
+            if (reduce) reveal();
+            else setTimeout(reveal, i * 140);
+          });
+          observer.unobserve(entry.target);
+        });
+      }, { threshold: 0.4 });
+
+      document.querySelectorAll('[data-stat-grid]').forEach((g) => observer.observe(g));
+    })();
+  </script>
+</BaseLayout>

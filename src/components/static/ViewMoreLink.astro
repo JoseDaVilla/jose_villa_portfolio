@@ -1,0 +1,18 @@
+---
+// src/components/static/ViewMoreLink.astro
+interface Props { href: string; label: string; }
+const { href, label } = Astro.props;
+---
+<a
+  href={href}
+  class="group inline-flex items-center gap-1.5 text-fg text-sm font-medium
+         pb-0.5 border-b border-accent
+         hover:text-accent transition-colors duration-base ease-brand
+         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent
+         focus-visible:ring-offset-2 focus-visible:ring-offset-bg rounded-sm"
+>
+  {label}
+  <span class="text-xs transition-transform duration-base ease-brand
+               group-hover:translate-x-[3px] group-hover:-translate-y-[3px]"
+        aria-hidden="true">→</span>
+</a>

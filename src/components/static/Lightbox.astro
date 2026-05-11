@@ -1,0 +1,31 @@
+---
+// src/components/static/Lightbox.astro
+// Single shared fullscreen image viewer. Image src is set by the page's
+// click handler when a `[data-fullscreen-trigger]` element is activated.
+---
+<dialog id="lightbox-dialog" class="lightbox-dialog" aria-label="Image preview">
+  <div class="relative w-full h-full flex items-center justify-center p-4 sm:p-8">
+    <button
+      type="button"
+      data-dialog-close
+      aria-label="Close fullscreen view"
+      class="absolute top-3 right-3 sm:top-5 sm:right-5 z-10
+             w-10 h-10 rounded-full inline-flex items-center justify-center
+             bg-black/50 backdrop-blur-sm border border-white/10 text-white/90
+             hover:bg-black/70 hover:text-white active:scale-95
+             transition-[transform,background-color] duration-base ease-brand
+             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+    >
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+      </svg>
+    </button>
+
+    <img
+      id="lightbox-img"
+      alt=""
+      class="max-w-full max-h-full object-contain rounded-lg shadow-2xl select-none"
+    />
+  </div>
+</dialog>

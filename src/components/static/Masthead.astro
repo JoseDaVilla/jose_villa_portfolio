@@ -1,0 +1,86 @@
+---
+// src/components/static/Masthead.astro
+// Slow horizontal marquee of stack/discipline labels — sits between the hero
+// and the first content section. Reads like a magazine masthead strip.
+const items = [
+  'TypeScript',
+  'React',
+  'Astro',
+  'Node.js',
+  'PostgreSQL',
+  'Three.js',
+  'Tailwind',
+  'Bun',
+  'Edge Compute',
+  'Stripe',
+  'Vercel',
+  'Postgres',
+  'WebGL',
+  'Cloudflare',
+];
+// Duplicate the list inline so the CSS keyframe can translate -50% for a
+// seamless loop without measuring widths in JS.
+const loop = [...items, ...items];
+
+// Cycle the bullet separators through the secondary palette so the marquee
+// reads as a beaded string of color rather than a uniform navy line.
+const bulletColors = ['--color-pink', '--color-orange', '--color-indigo', '--color-cyan'];
+---
+<aside
+  aria-label="Toolkit"
+  class="relative isolate overflow-hidden border-y border-line/60
+         py-4 bg-bg-secondary/40"
+>
+  <div class="masthead-fade pointer-events-none absolute inset-0" aria-hidden="true"></div>
+
+  <div class="masthead-track flex items-center gap-10 whitespace-nowrap will-change-transform">
+    {loop.map((label, i) => (
+      <span class="inline-flex items-center gap-10
+                   font-mono text-[11px] uppercase tracking-[0.22em] text-fg-muted">
+        <span>{label}</span>
+        {i < loop.length - 1 && (
+          <span
+            aria-hidden="true"
+            class="masthead-bullet"
+            style={`color: var(${bulletColors[i % bulletColors.length]});`}
+          >&bull;</span>
+        )}
+      </span>
+    ))}
+  </div>
+</aside>
+
+<style>
+  @keyframes masthead-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  .masthead-track {
+    animation: masthead-scroll 50s linear infinite;
+  }
+  .masthead-track:hover {
+    animation-play-state: paused;
+  }
+
+  .masthead-bullet {
+    opacity: 0.85;
+    text-shadow: 0 0 8px color-mix(in srgb, currentColor 50%, transparent);
+  }
+
+  /* Soft horizontal fade so labels enter and leave gracefully against the
+     page background instead of being clipped abruptly at the edges. */
+  .masthead-fade {
+    background:
+      linear-gradient(
+        to right,
+        var(--color-bg) 0%,
+        transparent 8%,
+        transparent 92%,
+        var(--color-bg) 100%
+      );
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .masthead-track { animation: none; }
+  }
+</style>

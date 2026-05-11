@@ -1,0 +1,20 @@
+---
+// src/components/static/BrowserChrome.astro
+interface Props { url: string; }
+const { url } = Astro.props;
+---
+<div class="bg-bg-secondary p-3 rounded-lg">
+  <div class="bg-bg rounded-md overflow-clip border border-line/40">
+    <div class="sticky top-0 z-30 bg-bg-secondary/95 backdrop-blur-sm
+                px-3.5 py-2.5 flex items-center gap-1.5 border-b border-line/50">
+      <span class="w-2.5 h-2.5 rounded-full bg-[#ff5f57]"></span>
+      <span class="w-2.5 h-2.5 rounded-full bg-[#febc2e]"></span>
+      <span class="w-2.5 h-2.5 rounded-full bg-[#28c840]"></span>
+      <span class="flex-1 text-center text-[11px] font-mono text-fg-faint tracking-[0.3px]">
+        {url}
+      </span>
+      <span class="w-[42px]"></span>
+    </div>
+    <slot />
+  </div>
+</div>

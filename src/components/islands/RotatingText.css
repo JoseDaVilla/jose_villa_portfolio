@@ -1,0 +1,45 @@
+/* Container — sits inline, lays its words on a single baseline. */
+.text-rotate {
+  display: inline-flex;
+  flex-wrap: wrap;
+  white-space: pre-wrap;
+  position: relative;
+  vertical-align: baseline;
+}
+
+/* Live region for screen readers — visually hidden but announced. */
+.text-rotate-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* One per word — overflow:hidden gives the letterbox so chars sliding in
+   from y:100% and out to y:-120% are clipped at the band's edges. */
+.text-rotate-word {
+  display: inline-flex;
+  overflow: hidden;
+}
+
+/* Lines mode — used when splitBy === "lines". */
+.text-rotate-lines {
+  display: inline-flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* One per animated element (char / word / line). */
+.text-rotate-element {
+  display: inline-block;
+}
+
+/* Spaces between words preserve their width. */
+.text-rotate-space {
+  white-space: pre;
+}

@@ -1,0 +1,48 @@
+---
+import '../styles/global.css';
+import SEO from '../lib/seo.astro';
+import Analytics from '@vercel/analytics/astro';
+
+interface Props {
+  title: string;
+  description: string;
+  image?: string;
+}
+const { title, description, image } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+
+    <SEO title={title} description={description} image={image} />
+
+    <!-- Theme: read user preference before paint to prevent FOUC -->
+    <script is:inline>
+      (function () {
+        try {
+          const stored = localStorage.getItem('theme');
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const theme = stored ?? (prefersDark ? 'dark' : 'light');
+          if (theme === 'dark') document.documentElement.classList.add('dark');
+        } catch (_) {
+          /* localStorage may be unavailable (SSR, privacy mode) — fall through to light */
+        }
+      })();
+    </script>
+
+    <slot name="head" />
+  </head>
+  <body class="bg-bg text-fg">
+    <a href="#main"
+       class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50
+              focus:bg-bg focus:text-fg focus:px-3 focus:py-2 focus:rounded-md
+              focus:ring-2 focus:ring-accent">
+      Skip to content
+    </a>
+    <slot />
+    <Analytics />
+  </body>
+</html>

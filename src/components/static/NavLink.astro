@@ -1,0 +1,22 @@
+---
+// src/components/static/NavLink.astro
+interface Props { href: string; label: string; section: 'about' | 'experience' | 'work' | 'contact'; }
+const { href, label, section } = Astro.props;
+---
+<a
+  href={href}
+  data-section={section}
+  class="group/nav flex items-center gap-3 text-[11px] tracking-[2px] uppercase
+         text-fg-faint hover:text-fg transition-colors duration-base ease-brand
+         data-[active=true]:text-fg
+         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent
+         focus-visible:ring-offset-2 focus-visible:ring-offset-bg rounded-sm py-1"
+>
+  <span
+    class="block h-px w-6 bg-fg-faint transition-all duration-base ease-brand
+           group-hover/nav:w-12 group-hover/nav:bg-fg
+           group-data-[active=true]/nav:w-12 group-data-[active=true]/nav:bg-fg"
+    aria-hidden="true"
+  ></span>
+  {label}
+</a>
