@@ -13,34 +13,6 @@ interface Props {
   socials:   { github: string; linkedin: string; email: string };
 }
 const { firstName, lastName, role, tagline, location, focus, socials } = Astro.props;
-
-// "Edition" stamp — month + year, set once at build time. Reads as a magazine
-// issue number ("EDITION №25.11") which complements the editorial feel.
-const issueDate = new Date();
-const issueLabel = `№ ${String(issueDate.getFullYear()).slice(-2)}.${String(issueDate.getMonth() + 1).padStart(2, '0')}`;
-
-// Starfield — built at build time so positions are stable across sessions
-// without needing client JS. Three depth layers; bigger stars drift faster.
-// Light theme uses palette hues (cycled per index) so stars feel like color
-// dust against cream; dark theme overrides to white in CSS.
-const STAR_COUNT = 90;
-const PALETTE = ['var(--color-pink)', 'var(--color-orange)', 'var(--color-indigo)', 'var(--color-cyan)'];
-const stars = Array.from({ length: STAR_COUNT }, (_, i) => {
-  const layer = i % 3; // 0 = closest, 2 = furthest
-  const sizeBase    = layer === 0 ? 2.4  : layer === 1 ? 1.5  : 0.7;
-  const opacityBase = layer === 0 ? 0.55 : layer === 1 ? 0.38 : 0.22;
-  const durBase     = layer === 0 ? 22   : layer === 1 ? 38   : 64;
-  return {
-    x:        +(Math.random() * 100).toFixed(2),
-    y:        +(Math.random() * 100).toFixed(2),
-    size:     +(sizeBase + Math.random() * 0.9).toFixed(2),
-    opacity:  +(opacityBase + Math.random() * 0.18).toFixed(2),
-    duration: +(durBase + Math.random() * 12).toFixed(1),
-    delay:    +(-Math.random() * 30).toFixed(2),
-    color:    PALETTE[i % PALETTE.length],
-    layer,
-  };
-});
 ---
 <section
   id="top"
@@ -49,46 +21,6 @@ const stars = Array.from({ length: STAR_COUNT }, (_, i) => {
          flex-1 flex flex-col justify-center
          pt-[clamp(72px,9vh,144px)] pb-[clamp(20px,4vh,72px)]"
 >
-  <div class="hero-atmosphere" aria-hidden="true">
-    <span class="hero-blob hero-blob--pink"></span>
-    <span class="hero-blob hero-blob--orange"></span>
-    <span class="hero-blob hero-blob--indigo"></span>
-    <span class="hero-blob hero-blob--cyan"></span>
-
-    {/* Drifting starfield — three depth layers, fixed positions per build,
-        purely decorative (aria-hidden via parent). */}
-    <div class="hero-stars">
-      {stars.map((s) => (
-        <span
-          class={`hero-star hero-star--l${s.layer}`}
-          style={`
-            left: ${s.x}%;
-            top: ${s.y}%;
-            width: ${s.size}px;
-            height: ${s.size}px;
-            --star-opacity: ${s.opacity};
-            --star-color: ${s.color};
-            animation-duration: ${s.duration}s;
-            animation-delay: ${s.delay}s;
-          `}
-        ></span>
-      ))}
-    </div>
-  </div>
-
-  {/* Edition stamp — pinned to the upper right of the hero, magazine masthead style */}
-  <div
-    aria-hidden="true"
-    data-edition-stamp
-    class="absolute top-[88px] right-6 sm:right-10 lg:right-14 z-10
-           hidden sm:flex flex-col items-end gap-1
-           font-mono text-[10px] uppercase tracking-[0.22em] text-fg-faint"
-  >
-    <span class="block w-12 h-px bg-fg-faint/40"></span>
-    <span>Edition {issueLabel}</span>
-    <span class="text-fg-faint/70">Volume one</span>
-  </div>
-
   <div class="relative mx-auto w-full max-w-[1240px]
               px-6 sm:px-10 lg:px-14 hero-rise
               flex flex-col gap-[clamp(16px,2.6vh,36px)]">
@@ -109,31 +41,24 @@ const stars = Array.from({ length: STAR_COUNT }, (_, i) => {
       </span>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-[1fr_minmax(0,320px)]
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_minmax(0,280px)]
                 gap-x-12 lg:gap-x-16 gap-y-[clamp(20px,3vh,40px)]
                 items-start lg:items-start">
 
-      {/* Headline column — name, role, tagline, CTAs all stacked together so
-          the left side reads as one unit. On mobile everything centers; on
-          lg+ it goes back to left-aligned alongside the photo. */}
       <div class="order-2 lg:order-1 hero-headline-block text-center lg:text-left" style="--i: 1;">
         <h1 class="hero-name font-display text-fg
-                   text-[clamp(44px,min(12.5vw,15vh),188px)]
-                   leading-[0.92] tracking-[-0.05em] max-w-[14ch]
+                   text-[clamp(64px,min(18vw,19vh),260px)]
+                   leading-[0.88] tracking-[-0.055em] max-w-[16ch]
                    mx-auto lg:mx-0">
-          {firstName} {lastName}<span class="hero-name-dot">.</span>
+          {firstName} {lastName}.
         </h1>
         <p class="hero-role font-display text-fg-muted
-                  text-[clamp(20px,min(3vw,3.6vh),36px)]
+                  text-[clamp(24px,min(3.4vw,4.2vh),44px)]
                   leading-[1.15] tracking-[-0.02em]
                   mt-[clamp(8px,1.2vh,18px)]">
           {role}
         </p>
 
-        {/* Rotating focus chip — each phrase carries its own hue; the chip's
-            bg/border/text/shadow morph in sync with the rotation so the
-            color and word always land together. A leading pulse-dot keeps
-            the chip alive between phrases. */}
         <div class="flex flex-wrap items-center justify-center lg:justify-start
                     gap-3 mt-[clamp(12px,1.8vh,22px)]
                     font-mono text-[11px] uppercase tracking-[0.22em] text-fg-faint">
@@ -151,8 +76,8 @@ const stars = Array.from({ length: STAR_COUNT }, (_, i) => {
           />
         </div>
 
-        <p class="max-w-[54ch] text-[clamp(14.5px,1.85vh,18px)]
-                  leading-[1.55] text-fg-muted
+        <p class="max-w-[54ch] text-[clamp(15.5px,2vh,20px)]
+                  leading-[1.6] text-fg-muted
                   mt-[clamp(14px,2.2vh,26px)]
                   mx-auto lg:mx-0">
           {tagline}
@@ -186,19 +111,16 @@ const stars = Array.from({ length: STAR_COUNT }, (_, i) => {
         </div>
       </div>
 
-      {/* Right-side photo — large, no chrome. The subject is cut out so we
-          float it on a soft accent halo for grounding instead of a frame.
-          Lifted slightly above grid baseline so the head reads above the name. */}
+      {/* Right-side photo — silhouette floats on a single neutral glow, no chrome */}
       <div
         data-portrait-anchor
         class="portrait-stage relative order-1 lg:order-2
-               w-full max-w-[clamp(200px,40vw,280px)] lg:max-w-[320px]
+               w-full max-w-[clamp(200px,40vw,260px)] lg:max-w-[280px]
                mx-auto lg:mx-0
                lg:-mt-[clamp(8px,3vh,40px)]"
         style="--i: 2;"
       >
-        <div class="portrait-halo" aria-hidden="true"></div>
-        <div class="portrait-spotlight" aria-hidden="true"></div>
+        <div class="portrait-glow" aria-hidden="true"></div>
         <img
           src="/profile-withoutbg.webp"
           alt={`Portrait of ${firstName} ${lastName}`}
@@ -233,218 +155,43 @@ const stars = Array.from({ length: STAR_COUNT }, (_, i) => {
     font-variation-settings: "wdth" 100, "opsz" 96;
     font-feature-settings: "ss01", "ss02", "calt";
   }
-  /* Role line — bold display weight with a slow shine sweep. The base color
-     fills the whole text on both sides of the highlight so the gradient
-     never leaves any character without paint at any frame. The bright
-     band lives at the gradient's 50% mark; with `background-size: 200%`,
-     a position of 0% puts the band at the right edge of the text, 100%
-     puts it at the left, and the text stays fully covered throughout. */
   .hero-role {
     font-weight: 700;
     font-variation-settings: "wdth" 100, "opsz" 32;
     font-feature-settings: "ss01", "ss02", "calt";
-    color: var(--color-fg);
-    background-image: linear-gradient(
-      100deg,
-      var(--color-fg) 0%,
-      var(--color-fg) 42%,
-      color-mix(in srgb, var(--color-fg) 25%, white 75%) 50%,
-      var(--color-fg) 58%,
-      var(--color-fg) 100%
-    );
-    background-size: 200% 100%;
-    background-repeat: no-repeat;
-    background-position: 50% 50%;
-    -webkit-background-clip: text;
-            background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: hero-role-shine 6s ease-in-out infinite alternate;
-    will-change: background-position;
-  }
-  :global(.dark) .hero-role {
-    background-image: linear-gradient(
-      100deg,
-      var(--color-fg) 0%,
-      var(--color-fg) 42%,
-      #ffffff 50%,
-      var(--color-fg) 58%,
-      var(--color-fg) 100%
-    );
-  }
-  @keyframes hero-role-shine {
-    0%   { background-position: 0% 50%; }
-    100% { background-position: 100% 50%; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .hero-role {
-      animation: none;
-      background-image: none;
-      -webkit-text-fill-color: var(--color-fg);
-    }
   }
 
-  /* Photo treatment — the source PNG already has a transparent background, so
-     we just float the silhouette on a soft accent halo and let drop-shadow
-     hug the actual outline instead of a rectangle. */
+  /* Photo treatment — the source PNG has a transparent background; a single
+     soft neutral radial glow sits behind it so the silhouette has somewhere
+     to land without competing with the headline. No color, no animation. */
   .portrait-stage {
     isolation: isolate;
   }
-  /* Drifting starfield — three depth layers each with its own keyframe so
-     a single `animation` property on every star is enough to differentiate
-     them. Sizes/opacities/colors come from inline style; the keyframes only
-     handle motion + a soft twinkle. */
-  .hero-stars {
+  .portrait-glow {
     position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-  }
-  .hero-star {
-    position: absolute;
-    border-radius: 50%;
-    background: var(--star-color, var(--color-fg));
-    opacity: var(--star-opacity, 0.35);
-    box-shadow: 0 0 6px color-mix(in srgb, var(--star-color, var(--color-fg)) 60%, transparent);
-    will-change: transform, opacity;
-    animation-iteration-count: infinite;
-    animation-timing-function: ease-in-out;
-    animation-direction: alternate;
-  }
-  /* Closest layer — biggest motion, fastest tempo, most prominent twinkle. */
-  .hero-star--l0 { animation-name: hero-star-drift-0; }
-  /* Middle layer — moderate. */
-  .hero-star--l1 { animation-name: hero-star-drift-1; }
-  /* Furthest layer — barely moves, dims more in the twinkle. */
-  .hero-star--l2 { animation-name: hero-star-drift-2; }
-
-  @keyframes hero-star-drift-0 {
-    0%   { transform: translate(0, 0)        scale(1);   opacity: var(--star-opacity); }
-    50%  { transform: translate(-22px, 28px) scale(1.1); opacity: calc(var(--star-opacity) * 0.55); }
-    100% { transform: translate( 14px,-18px) scale(0.95); opacity: var(--star-opacity); }
-  }
-  @keyframes hero-star-drift-1 {
-    0%   { transform: translate(0, 0)        scale(1);   opacity: var(--star-opacity); }
-    50%  { transform: translate( 16px, 20px) scale(1.05); opacity: calc(var(--star-opacity) * 0.7); }
-    100% { transform: translate(-12px,-14px) scale(0.97); opacity: var(--star-opacity); }
-  }
-  @keyframes hero-star-drift-2 {
-    0%   { transform: translate(0, 0);                      opacity: var(--star-opacity); }
-    50%  { transform: translate(-8px, 10px);                opacity: calc(var(--star-opacity) * 0.4); }
-    100% { transform: translate( 6px,-7px);                 opacity: var(--star-opacity); }
-  }
-
-  /* Dark theme — override colored stars with crisp white so the field reads
-     against the navy bg, and the glow gets a stronger bloom. */
-  :global(.dark) .hero-star {
-    background: rgba(255, 255, 255, 0.92);
-    box-shadow:
-      0 0 4px rgba(255, 255, 255, 0.6),
-      0 0 10px rgba(255, 255, 255, 0.25);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .hero-star { animation: none; }
-  }
-
-  /* Halo — sized far larger than the image so the gradient stops never land
-     near the photo's corners. The portrait-stage doesn't clip overflow, so
-     a deeply negative inset (-90% / -110%) lets the colored fog dissolve
-     into the section background organically; the heavy blur smooths any
-     remaining structure. Two stacked radials give shape variation without
-     ever showing a hard edge. The whole thing slowly orbits + breathes so
-     the colored cloud behind the photo never sits still. */
-  .portrait-halo {
-    position: absolute;
-    inset: -90% -110%;
-    background:
-      radial-gradient(
-        38% 38% at 50% 42%,
-        color-mix(in srgb, var(--color-accent) 38%, transparent) 0%,
-        color-mix(in srgb, var(--color-accent) 14%, transparent) 28%,
-        transparent 70%
-      ),
-      radial-gradient(
-        46% 42% at 50% 60%,
-        color-mix(in srgb, var(--color-pink) 22%, transparent) 0%,
-        transparent 72%
-      );
-    filter: blur(80px);
-    pointer-events: none;
-    z-index: 0;
-    transform-origin: 50% 50%;
-    animation: portrait-halo-orbit 28s ease-in-out infinite;
-    will-change: transform;
-  }
-  :global(.dark) .portrait-halo {
-    background:
-      radial-gradient(
-        38% 38% at 50% 42%,
-        color-mix(in srgb, var(--color-accent) 58%, transparent) 0%,
-        color-mix(in srgb, var(--color-accent) 22%, transparent) 28%,
-        transparent 70%
-      ),
-      radial-gradient(
-        46% 42% at 50% 60%,
-        color-mix(in srgb, var(--color-pink) 28%, transparent) 0%,
-        transparent 72%
-      );
-    filter: blur(96px);
-  }
-  @keyframes portrait-halo-orbit {
-    0%   { transform: rotate(0deg)   scale(1);    }
-    50%  { transform: rotate(180deg) scale(1.06); }
-    100% { transform: rotate(360deg) scale(1);    }
-  }
-
-  /* Moving spotlight — a smaller, brighter, warmer orb that orbits the
-     photo on a tighter elliptical path. Gives the impression of a key
-     light circling the subject, layering active motion on top of the
-     slow halo orbit. Different color (pink) so it reads as a separate
-     light source rather than just "more halo". */
-  .portrait-spotlight {
-    position: absolute;
-    width: 75%;
-    aspect-ratio: 1;
-    top: 12%;
-    left: 12%;
+    inset: -10%;
     border-radius: 50%;
     background: radial-gradient(
       circle at 50% 50%,
-      color-mix(in srgb, var(--color-pink) 55%, transparent) 0%,
-      color-mix(in srgb, var(--color-pink) 18%, transparent) 35%,
-      transparent 75%
+      color-mix(in srgb, var(--color-fg) 8%, transparent) 0%,
+      transparent 70%
     );
-    filter: blur(38px);
+    filter: blur(60px);
     pointer-events: none;
     z-index: 0;
-    mix-blend-mode: screen;
-    animation: portrait-spotlight-orbit 14s linear infinite;
-    will-change: transform;
   }
-  :global(.dark) .portrait-spotlight {
+  :global(.dark) .portrait-glow {
     background: radial-gradient(
       circle at 50% 50%,
-      color-mix(in srgb, var(--color-pink) 75%, transparent) 0%,
-      color-mix(in srgb, var(--color-orange) 28%, transparent) 35%,
-      transparent 75%
+      color-mix(in srgb, white 10%, transparent) 0%,
+      transparent 70%
     );
-    filter: blur(48px);
-  }
-  @keyframes portrait-spotlight-orbit {
-    0%   { transform: translate(  0%,   0%) scale(1);    }
-    25%  { transform: translate( 22%, -10%) scale(1.08); }
-    50%  { transform: translate( 12%,  18%) scale(0.95); }
-    75%  { transform: translate(-22%,   8%) scale(1.04); }
-    100% { transform: translate(  0%,   0%) scale(1);    }
   }
   .portrait-img {
     position: relative;
     z-index: 1;
-    /* Round the bottom of the silhouette so the chest cutoff becomes a soft
-       curve instead of a flat horizontal slice. The two-value border-radius
-       (50% / 18%) gives a wide-but-shallow ellipse — flatter than a half
-       circle, which keeps the photo readable. A small linear fade on the
-       very bottom edge softens the rounded crop into the page. */
+    /* Round the chest cutoff so it reads as a soft curve, then fade the very
+       bottom edge so the silhouette dissolves into the page. */
     border-radius: 0 0 50% 50% / 0 0 18% 18%;
     overflow: hidden;
     mask-image: linear-gradient(
@@ -459,27 +206,6 @@ const stars = Array.from({ length: STAR_COUNT }, (_, i) => {
       black 90%,
       transparent 100%
     );
-    /* Slow vertical float + tiny brightness/contrast pulse so the photo
-       responds to the moving spotlight behind it. Subtle (~6px float,
-       1.04 brightness peak) and slow (7s) so it reads as calm presence
-       rather than animation. */
-    animation: portrait-float 7s ease-in-out infinite;
-    will-change: transform, filter;
-  }
-  @keyframes portrait-float {
-    0%, 100% {
-      transform: translateY(0) scale(1);
-      filter: brightness(1) contrast(1);
-    }
-    50% {
-      transform: translateY(-6px) scale(1.012);
-      filter: brightness(1.04) contrast(1.02);
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .portrait-halo,
-    .portrait-spotlight,
-    .portrait-img { animation: none; }
   }
 
   /* Subtle pulse on the scroll cue's hairline */
@@ -496,55 +222,14 @@ const stars = Array.from({ length: STAR_COUNT }, (_, i) => {
   @media (max-height: 820px) {
     .scroll-cue { display: none; }
   }
-
-  /* Zoomed-in / short-viewport ladder. Each step strips a layer of chrome so
-     the headline + tagline + CTAs always render without clipping and the
-     toolkit strip stays at the bottom of the fold. */
-  @media (max-height: 760px) {
-    [data-edition-stamp] {
-      display: none;
-    }
-  }
+  /* Drop the portrait when there isn't room for it — keeps the headline + CTAs in fold */
   @media (max-height: 720px) {
-    /* Drop the portrait entirely — its 4:5 footprint is the single biggest
-       vertical contributor in the single-column layout. */
     [data-portrait-anchor] {
       display: none;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .scroll-cue-line { animation: none; }
-  }
-
-  /* Mobile performance — the hero piles up a lot of GPU-heavy work
-     (filter: blur with 70–96px radius on the blobs and halos,
-     mix-blend-mode: screen on the spotlight, 90 absolutely positioned
-     animated stars, and continuous text-shine repaints on the role
-     line). On low-end phones this dominates the first frame budget and
-     stalls scroll, so below 768px we strip the decorative motion and
-     drop the starfield entirely. The composition stays — gradients
-     and the portrait halo render as static fills — only the animation
-     loops are removed. */
-  @media (max-width: 768px) {
-    .hero-stars { display: none; }
-    .hero-blob { animation: none; }
-    .portrait-halo,
-    .portrait-spotlight {
-      animation: none;
-      filter: blur(40px);
-    }
-    .portrait-img {
-      animation: none;
-      will-change: auto;
-    }
-    .hero-role {
-      animation: none;
-      background-image: none;
-      -webkit-text-fill-color: var(--color-fg);
-              color: var(--color-fg);
-    }
-    .hero-name-dot { animation: none; }
     .scroll-cue-line { animation: none; }
   }
 </style>
