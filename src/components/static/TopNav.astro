@@ -28,7 +28,7 @@ const { monogram = 'JDV', name = 'Jose Daniel Villa' } = Astro.props;
       <span class="hidden sm:inline-block w-px h-3 bg-line"></span>
       <span class="hidden sm:inline-block font-mono text-[10.5px] uppercase
                    tracking-[0.18em] text-fg-faint">
-        Portfolio &mdash; 2026
+        Portfolio, 2026
       </span>
     </a>
 
@@ -59,17 +59,9 @@ const { monogram = 'JDV', name = 'Jose Daniel Villa' } = Astro.props;
     </nav>
 
     <div class="flex items-center gap-3">
-      <a
-        href="#contact"
-        class="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5
-               font-mono text-[11px] uppercase tracking-[0.18em]
-               text-fg border border-line rounded-full
-               hover:border-accent hover:text-accent
-               transition-colors duration-base ease-brand"
-      >
-        <span class="relative inline-flex w-1.5 h-1.5">
-          <span class="absolute inset-0 rounded-full bg-accent opacity-75 animate-ping"></span>
-          <span class="relative inline-block w-1.5 h-1.5 rounded-full bg-accent"></span>
+      <a href="#contact" class="hidden sm:inline-flex status-badge">
+        <span class="status-badge-dot" aria-hidden="true">
+          <span class="status-badge-pulse"></span>
         </span>
         Available
       </a>

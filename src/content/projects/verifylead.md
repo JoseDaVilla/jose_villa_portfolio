@@ -1,7 +1,7 @@
 ---
 title: "VerifyLead"
 year: 2025
-tagline: "Lead platform processing thousands of leads daily. Real-time SMTP validation pings the destination mailbox to confirm deliverability — protecting sender domain reputation. Paired with email + SMS campaigns, OTP-verified embeddable forms, and intelligent lead scoring."
+tagline: "Lead platform processing thousands of leads daily. Real-time SMTP validation pings the destination mailbox to confirm deliverability and protect sender domain reputation. Paired with email + SMS campaigns, OTP-verified embeddable forms, and intelligent lead scoring."
 tags: ["Node.js", "PostgreSQL", "SMTP", "Twilio", "SendGrid"]
 category: "selected"
 order: 3
@@ -12,7 +12,7 @@ gallery:
   - "../../assets/projects/verifylead/03.png"
 ---
 
-A lead platform that ingests and validates **thousands of leads per day**. The differentiator is real-time SMTP validation — the system actually pings the destination mailbox to confirm a real inbox exists before passing the lead through, protecting the sender domain's reputation from bouncing into spam folders.
+A lead platform that ingests and validates **thousands of leads per day**. The differentiator is real-time SMTP validation: the system actually pings the destination mailbox to confirm a real inbox exists before passing the lead through, protecting the sender domain's reputation from bouncing into spam folders.
 
 On top of validation:
 

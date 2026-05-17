@@ -1,7 +1,7 @@
 ---
 title: "Spa Management & POS"
 year: 2025
-tagline: "Full operations and POS system running across 30+ US spa locations. Inventory, pricing management, checkout, discount logic, multi-location sales tracking, and HR automation — in active daily use across the chain."
+tagline: "Full operations and POS system running across 30+ US spa locations. Inventory, pricing management, checkout, discount logic, multi-location sales tracking, and HR automation, in active daily use across the chain."
 tags: ["Next.js", "Node.js", "PostgreSQL", "MySQL", "Docker"]
 category: "selected"
 order: 2

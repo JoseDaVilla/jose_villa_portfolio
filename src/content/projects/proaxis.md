@@ -15,7 +15,7 @@ gallery:
   - "../../assets/projects/proaxis/06.png"
 ---
 
-A white-label SaaS that lets entrepreneurs spin up and run their own branded digital marketing agency in days, not months. Each tenant gets a fully-configured workspace — CRM, training academy, drag-and-drop form builder, payment processing, scheduling — wired to their own domain and merchant identity.
+A white-label SaaS that lets entrepreneurs spin up and run their own branded digital marketing agency in days, not months. Each tenant gets a fully-configured workspace (CRM, training academy, drag-and-drop form builder, payment processing, scheduling) wired to their own domain and merchant identity.
 
 The hard part was **Stripe Connected Accounts**: every tenant collects payments under their own merchant ID, with platform fees routed back to the parent business automatically. The system also generates Zoom links on calendar booking, runs a drag-and-drop form builder for client intake, and tracks downstream commissions for partner referrals end-to-end.
 

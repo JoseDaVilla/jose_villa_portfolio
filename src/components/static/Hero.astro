@@ -25,20 +25,17 @@ const { firstName, lastName, role, tagline, location, focus, socials } = Astro.p
               px-6 sm:px-10 lg:px-14 hero-rise
               flex flex-col gap-[clamp(16px,2.6vh,36px)]">
 
-    {/* Eyebrow — small mono label sets the tone before the headline lands */}
+    {/* Availability badge — solid green pill, same look as the TopNav and
+        About chip so the availability signal stays consistent across the
+        page. Wrapped in a link so a click takes the user to #contact. */}
     <div class="flex flex-wrap items-center justify-center lg:justify-start
                 gap-x-4 gap-y-2" style="--i: 0;">
-      <span class="font-mono text-[11px] uppercase tracking-[0.22em] text-fg-faint">
-        &mdash;&nbsp;&nbsp;Portfolio &nbsp;/&nbsp; 001
-      </span>
-      <span class="inline-flex items-center gap-2 font-mono text-[11px]
-                   uppercase tracking-[0.22em] text-accent">
-        <span class="relative inline-flex w-1.5 h-1.5">
-          <span class="absolute inset-0 rounded-full bg-accent opacity-75 animate-ping"></span>
-          <span class="relative inline-block w-1.5 h-1.5 rounded-full bg-accent"></span>
+      <a href="#contact" class="status-badge">
+        <span class="status-badge-dot" aria-hidden="true">
+          <span class="status-badge-pulse"></span>
         </span>
-        Available for select work
-      </span>
+        Available for projects
+      </a>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-[1fr_minmax(0,280px)]
@@ -76,12 +73,14 @@ const { firstName, lastName, role, tagline, location, focus, socials } = Astro.p
           />
         </div>
 
-        <p class="max-w-[54ch] text-[clamp(15.5px,2vh,20px)]
-                  leading-[1.6] text-fg-muted
-                  mt-[clamp(14px,2.2vh,26px)]
-                  mx-auto lg:mx-0">
-          {tagline}
-        </p>
+        <p
+          class="hero-tagline max-w-[54ch] text-[clamp(15.5px,2vh,20px)]
+                 leading-[1.6] text-fg-muted
+                 mt-[clamp(14px,2.2vh,26px)]
+                 mx-auto lg:mx-0"
+          set:html={tagline}
+        />
+
 
         <div class="flex flex-wrap items-center justify-center lg:justify-start
                     gap-3 sm:gap-4 mt-[clamp(16px,2.4vh,28px)]">
@@ -161,6 +160,14 @@ const { firstName, lastName, role, tagline, location, focus, socials } = Astro.p
     font-feature-settings: "ss01", "ss02", "calt";
   }
 
+  /* Inline-bold phrases inside the tagline pick up the brighter foreground
+     hue so the bolding actually reads as emphasis, not just a heavier
+     weight against the muted body color. */
+  .hero-tagline :global(strong) {
+    color: var(--color-fg);
+    font-weight: 600;
+  }
+
   /* Photo treatment — the source PNG has a transparent background; a single
      soft neutral radial glow sits behind it so the silhouette has somewhere
      to land without competing with the headline. No color, no animation. */
@@ -190,20 +197,24 @@ const { firstName, lastName, role, tagline, location, focus, socials } = Astro.p
   .portrait-img {
     position: relative;
     z-index: 1;
-    /* Round the chest cutoff so it reads as a soft curve, then fade the very
-       bottom edge so the silhouette dissolves into the page. */
-    border-radius: 0 0 50% 50% / 0 0 18% 18%;
-    overflow: hidden;
-    mask-image: linear-gradient(
-      to bottom,
-      black 0%,
-      black 90%,
-      transparent 100%
-    );
+    /* Subtle 10% corner rounding for the top and sides; the bottom dissolves
+       into the page via a multi-stop linear fade so the rounded bottom
+       corners blend smoothly with the transparency instead of ending hard. */
+    border-radius: 10%;
     -webkit-mask-image: linear-gradient(
       to bottom,
       black 0%,
-      black 90%,
+      black 70%,
+      rgba(0, 0, 0, 0.78) 82%,
+      rgba(0, 0, 0, 0.4)  92%,
+      transparent 100%
+    );
+            mask-image: linear-gradient(
+      to bottom,
+      black 0%,
+      black 70%,
+      rgba(0, 0, 0, 0.78) 82%,
+      rgba(0, 0, 0, 0.4)  92%,
       transparent 100%
     );
   }

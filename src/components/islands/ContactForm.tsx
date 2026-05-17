@@ -164,7 +164,7 @@ export default function ContactForm() {
           </svg>
         </div>
         <p className="contact-success-step contact-success-step-1 text-fg font-medium text-[17px] mt-6">
-          Message sent — thank you.
+          Message sent. Thank you.
         </p>
         <p className="contact-success-step contact-success-step-2 text-fg-muted text-[13.5px] mt-2 leading-[1.7] max-w-[44ch] mx-auto">
           I'll reach out within a day or two.
@@ -287,7 +287,7 @@ export default function ContactForm() {
             onChange={(e) => setMessage(e.target.value)}
             disabled={status === 'submitting'}
             className={fieldInput + ' resize-y min-h-[140px]'}
-            placeholder="What's the project, timeline, anything you'd like me to know — a few sentences is plenty."
+            placeholder="What's the project, timeline, anything you'd like me to know. A few sentences is plenty."
           />
           <div className="flex items-center justify-between mt-1.5">
             <p className="text-[11px] text-fg-faint">

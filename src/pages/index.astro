@@ -64,8 +64,8 @@ const socials = {
 };
 ---
 <BaseLayout
-  title="Jose Daniel Villa — Lead Full-Stack Developer"
-  description="I build the systems businesses actually run on. Production SaaS, lead marketplaces, POS systems, and immersive 3D web experiences. Based in Medellín, Colombia."
+  title="Jose Daniel Villa, Lead Full-Stack Developer"
+  description="I build websites and platforms for businesses, sharpened inside marketing agencies. Lead generation, automation, SaaS and B2B systems, client-facing sites, and the operational tools that tie it all together. Based in Medellín, Colombia."
 >
   <TopNav monogram="JV" name="Jose Villa" />
 
@@ -77,7 +77,7 @@ const socials = {
       firstName="Jose"
       lastName="Villa"
       role="Full-Stack Developer"
-      tagline="I build the systems businesses actually run on — production SaaS, lead marketplaces, POS platforms, and immersive 3D web experiences."
+      tagline="I build the <strong>websites and platforms</strong> businesses actually run on. Years building for <strong>marketing agencies</strong> sharpened my instincts for <strong>lead generation and automation</strong>. Client-facing sites, SaaS and B2B platforms, POS systems, and the operational tools that hold everything together."
       location="Medellín, Colombia"
       focus="SaaS · POS · 3D Web"
       socials={socials}
@@ -93,13 +93,13 @@ const socials = {
   >
 
     <Reveal client:visible>
-      <Section id="about" title="About" index="01 — Origin" eyebrow="Who I am · what I work on" tone="indigo">
-        <div class="available-chip">
-          <span class="available-chip-dot" aria-hidden="true">
-            <span class="available-chip-pulse"></span>
+      <Section id="about" title="About" eyebrow="Who I am · what I work on" tone="indigo">
+        <a href="#contact" class="status-badge mb-6">
+          <span class="status-badge-dot" aria-hidden="true">
+            <span class="status-badge-pulse"></span>
           </span>
-          Available for select engagements
-        </div>
+          Available for projects
+        </a>
 
         <div class="prose prose-base max-w-none text-fg-muted text-[15.5px] leading-[1.75]
                     [&_strong]:text-fg [&_strong]:font-medium space-y-4">
@@ -135,7 +135,7 @@ const socials = {
     </Reveal>
 
     <Reveal client:visible>
-      <Section id="experience" title="Experience" index="02 — Track record" eyebrow="Roles & engagements" wide tone="cyan">
+      <Section id="experience" title="Experience" eyebrow="Roles & engagements" wide tone="cyan">
         <Reveal client:visible stagger>
           <div class="border-t border-line/60">
             {experience.map((entry) => {
@@ -164,7 +164,7 @@ const socials = {
     </Reveal>
 
     <Reveal client:visible>
-      <Section id="work" title="Selected work" index="03 — Built & shipped" eyebrow="Production systems · client products" wide tone="pink">
+      <Section id="work" title="Selected work" eyebrow="Production systems · client products" wide tone="pink">
         <Reveal client:visible stagger>
           <div class="border-t border-line/60">
             {selected.map(p => (
@@ -192,7 +192,7 @@ const socials = {
     </Reveal>
 
     <Reveal client:visible>
-      <Section id="other" title="Other noteworthy" index="04 — Also worth a look" wide tone="orange">
+      <Section id="other" title="Other noteworthy" wide tone="orange">
         <Reveal client:visible stagger>
           <div class="border-t border-line/60">
             {other.map(p => (
@@ -219,9 +219,9 @@ const socials = {
     </Reveal>
 
     <Reveal client:visible>
-      <Section id="contact" title="Get in touch" index="05 — Let's talk" eyebrow="Replies within a day or two" tone="pink" centered>
+      <Section id="contact" title="Get in touch" eyebrow="Replies within a day or two" tone="pink" centered>
         <p class="text-fg-muted text-[15.5px] leading-[1.75] mb-8 max-w-[58ch] mx-auto text-center">
-          I'm taking on a small number of new engagements right now &mdash;
+          I'm taking on a small number of new engagements right now:
           <strong class="text-fg font-medium">product builds</strong>,
           <strong class="text-fg font-medium">technical leadership</strong>, or
           <strong class="text-fg font-medium">process automation</strong>.

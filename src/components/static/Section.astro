@@ -5,7 +5,6 @@ type Tone = 'pink' | 'orange' | 'indigo' | 'cyan' | 'accent';
 interface Props {
   id: string;
   title: string;
-  index?: string;
   eyebrow?: string;
   /** When true, the slot stretches to fill the column instead of capping at prose width. */
   wide?: boolean;
@@ -14,7 +13,7 @@ interface Props {
   /** Hue applied to the section's accent dot, hairline, card hover bar, and tag hover. */
   tone?: Tone;
 }
-const { id, title, index, eyebrow, wide = false, centered = false, tone = 'accent' } = Astro.props;
+const { id, title, eyebrow, wide = false, centered = false, tone = 'accent' } = Astro.props;
 const headingId = `${id}-heading`;
 // `--section-color` cascades to the cards, tags, and stat tiles inside via
 // CSS variable inheritance — single source of truth for the section's hue.
@@ -34,7 +33,6 @@ const toneVar = tone === 'accent' ? '--color-accent' : `--color-${tone}`;
       : 'sm:flex-row sm:items-end sm:justify-between',
   ]}>
     <div>
-      {index && <span class="section-index mb-4 block">{index}</span>}
       <h2
         id={headingId}
         class="font-display text-fg
@@ -45,7 +43,7 @@ const toneVar = tone === 'accent' ? '--color-accent' : `--color-${tone}`;
     </div>
     {eyebrow && (
       <p class:list={[
-        'font-mono text-[11px] uppercase tracking-[0.2em] text-fg-faint max-w-[36ch]',
+        'font-mono text-[14px] uppercase tracking-[0.18em] text-fg-faint max-w-[44ch]',
         !centered && 'sm:text-right',
       ]}>
         {eyebrow}

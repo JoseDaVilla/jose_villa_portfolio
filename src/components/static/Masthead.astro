@@ -1,23 +1,50 @@
 ---
 // src/components/static/Masthead.astro
-// Slow horizontal marquee of stack/discipline labels — sits between the hero
-// and the first content section. Reads like a magazine masthead strip.
-const items = [
-  'TypeScript',
-  'React',
-  'Astro',
-  'Node.js',
-  'PostgreSQL',
-  'Three.js',
-  'Tailwind',
-  'Bun',
-  'Edge Compute',
-  'Stripe',
-  'Vercel',
-  'Postgres',
-  'WebGL',
-  'Cloudflare',
+// Horizontal logo marquee — sits between the hero and the first content
+// section. Shows the toolkit visually rather than as text labels.
+//
+// Some logos ship as light/dark pairs; for those, we render both and let
+// CSS show the right variant per theme.
+type ItemBase = {
+  name: string;
+  url:  string;
+  /** Optional per-logo visual scale relative to the base 44px height. */
+  scale?: number;
+  /** For monochrome SVGs that ship in black — invert their color in dark mode. */
+  invertInDark?: boolean;
+  /** For monochrome SVGs that ship in white — invert their color in light mode. */
+  invertInLight?: boolean;
+};
+type Item =
+  | (ItemBase & { src: string })
+  | (ItemBase & { lightSrc: string; darkSrc: string });
+
+const items: Item[] = [
+  { name: 'TypeScript',  src: '/typescript.svg',   url: 'https://www.typescriptlang.org' },
+  { name: 'JavaScript',  src: '/javascript.svg',   url: 'https://developer.mozilla.org/docs/Web/JavaScript' },
+  { name: 'Tailwind',    src: '/tailwindcss.svg',  url: 'https://tailwindcss.com' },
+  { name: 'Next.js',     src: '/next.js.svg',      url: 'https://nextjs.org', invertInDark: true, scale: 0.7 },
+  { name: 'Astro',       src: '/astro.svg',        url: 'https://astro.build', invertInLight: true },
+  { name: 'Node.js',     src: '/nodejs.svg',       url: 'https://nodejs.org' },
+  { name: 'Python',      src: '/python.svg',       url: 'https://www.python.org' },
+  { name: 'PostgreSQL',  src: '/postgre.svg',      url: 'https://www.postgresql.org' },
+  { name: 'Three.js',    lightSrc: '/Three.js_light.svg', darkSrc: '/Three.js_dark.svg', url: 'https://threejs.org' },
+  { name: 'Blender',     src: '/blender.svg',      url: 'https://www.blender.org' },
+  { name: 'Figma',       src: '/figma.svg',        url: 'https://www.figma.com' },
+  { name: 'Git',         src: '/git.svg',          url: 'https://git-scm.com' },
+  { name: 'Stripe',      src: '/stripe.svg',       url: 'https://stripe.com' },
+  { name: 'PayPal',      src: '/paypal.svg',       url: 'https://www.paypal.com' },
+  { name: 'SendGrid',    src: '/sendgrid.svg',     url: 'https://sendgrid.com' },
+  { name: 'Meta',        lightSrc: '/meta.png', darkSrc: '/meta-dark.png', url: 'https://developers.facebook.com', scale: 1.5 },
+  { name: 'Google',      src: '/google.svg',       url: 'https://developers.google.com' },
+  { name: 'Zapier',      src: '/zapier.svg',       url: 'https://zapier.com' },
+  { name: 'GoHighLevel', lightSrc: '/ghl-light.png', darkSrc: '/ghl-dark.png', url: 'https://www.gohighlevel.com' },
+  { name: 'Make',        src: '/make.webp',        url: 'https://www.make.com' },
+  { name: 'Zendesk',     lightSrc: '/zendesk-black.svg', darkSrc: '/zendesk.svg', url: 'https://www.zendesk.com' },
+  { name: 'Commio',      src: '/commio.png',       url: 'https://commio.com' },
+  { name: 'WordPress',   src: '/wordpress.svg',    url: 'https://wordpress.org' },
 ];
+
 // Duplicate the list inline so the CSS keyframe can translate -50% for a
 // seamless loop without measuring widths in JS.
 const loop = [...items, ...items];
@@ -25,19 +52,63 @@ const loop = [...items, ...items];
 // Cycle the bullet separators through the secondary palette so the marquee
 // reads as a beaded string of color rather than a uniform navy line.
 const bulletColors = ['--color-pink', '--color-orange', '--color-indigo', '--color-cyan'];
+
+const isThemed = (it: Item): it is { name: string; lightSrc: string; darkSrc: string } =>
+  'lightSrc' in it;
 ---
 <aside
   aria-label="Toolkit"
   class="hidden md:block relative isolate overflow-hidden border-y border-line/60
-         py-4 bg-bg-secondary/40"
+         py-7 bg-bg-secondary/40"
 >
   <div class="masthead-fade pointer-events-none absolute inset-0" aria-hidden="true"></div>
 
-  <div class="masthead-track flex items-center gap-10 whitespace-nowrap will-change-transform">
-    {loop.map((label, i) => (
-      <span class="inline-flex items-center gap-10
-                   font-mono text-[11px] uppercase tracking-[0.22em] text-fg-muted">
-        <span>{label}</span>
+  <div
+    data-marquee-track
+    class="masthead-track flex items-center gap-10 whitespace-nowrap will-change-transform"
+  >
+    {loop.map((item, i) => (
+      <span class="masthead-cell">
+        <a
+          href={item.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`${item.name} — opens in a new tab`}
+          class="masthead-logo"
+          style={item.scale ? `--logo-scale: ${item.scale};` : undefined}
+        >
+          {isThemed(item) ? (
+            <>
+              <img
+                src={item.lightSrc}
+                alt={item.name}
+                loading="eager"
+                decoding="async"
+                class="masthead-img masthead-img--light"
+              />
+              <img
+                src={item.darkSrc}
+                alt={item.name}
+                loading="eager"
+                decoding="async"
+                class="masthead-img masthead-img--dark"
+              />
+            </>
+          ) : (
+            <img
+              src={item.src}
+              alt={item.name}
+              loading="eager"
+              decoding="async"
+              class:list={[
+                'masthead-img',
+                item.invertInDark  && 'masthead-img--invert-dark',
+                item.invertInLight && 'masthead-img--invert-light',
+              ]}
+            />
+          )}
+          <span class="masthead-name" aria-hidden="true">{item.name}</span>
+        </a>
         {i < loop.length - 1 && (
           <span
             aria-hidden="true"
@@ -51,23 +122,131 @@ const bulletColors = ['--color-pink', '--color-orange', '--color-indigo', '--col
 </aside>
 
 <style>
-  @keyframes masthead-scroll {
-    from { transform: translateX(0); }
-    to   { transform: translateX(-50%); }
-  }
+  /* The marquee is driven by JS (see the <script> below) so we can support
+     pointer-drag scrubbing in addition to the auto-scroll. CSS only
+     supplies the grab/grabbing cursor and the touch-action hint that lets
+     users still scroll the page vertically while horizontal drags get
+     captured by the script. */
   .masthead-track {
-    animation: masthead-scroll 50s linear infinite;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+    touch-action: pan-y;
   }
-  .masthead-track:hover {
-    animation-play-state: paused;
+  .masthead-track.is-dragging {
+    cursor: grabbing;
+  }
+  /* Prevent native image drag (which would hijack the pointer and ghost
+     the logo) so our drag handler stays in control. */
+  .masthead-img {
+    -webkit-user-drag: none;
+    user-drag: none;
+  }
+
+  /* Each cell holds a logo + its trailing bullet, kept on one baseline so
+     the marquee reads as a single horizontal line. */
+  .masthead-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 2.5rem;
+  }
+
+  /* Override Tailwind preflight's `img { max-width: 100%; height: auto }` —
+     in an inline-flex parent that has no intrinsic width, max-width: 100%
+     would collapse the image to zero width. We size logos explicitly here
+     and free them from the preflight constraint. The --logo-scale var lets
+     individual items (e.g. Meta, whose PNG ships with internal padding)
+     opt into a larger render size. */
+  .masthead-img {
+    display: inline-block;
+    height: calc(44px * var(--logo-scale, 1));
+    width: auto;
+    max-width: none;
+    vertical-align: middle;
+    /* Keep raster logos (commio.png, make.webp, meta.png, ghl-*.png) crisp at 2x */
+    image-rendering: -webkit-optimize-contrast;
+  }
+
+  /* Each logo is now an anchor — relative-positioned so the hover name label
+     can be absolutely placed beneath it without affecting marquee layout. */
+  .masthead-logo {
+    position: relative;
+    display: inline-block;
+    line-height: 0;
+    opacity: 0.9;
+    text-decoration: none;
+    transition: transform 200ms ease, opacity 200ms ease;
+  }
+  .masthead-logo:hover {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  /* Subtle focus ring so keyboard users see where they are; only visible
+     when focus arrives via tab, not on click. */
+  .masthead-logo:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 6px;
+    border-radius: 4px;
+  }
+
+  /* Hover-revealed name label — sits below each logo in the strip's lower
+     padding, fades + lifts in on hover. Animation is paused while hovering
+     (via .masthead-track:hover above), so the label stays legible. */
+  .masthead-name {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%) translateY(-4px);
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-fg-muted);
+    white-space: nowrap;
+    line-height: 1;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 180ms ease, transform 180ms ease;
+  }
+  .masthead-logo:hover .masthead-name,
+  .masthead-logo:focus-visible .masthead-name {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Theme-aware logo variants. Default = light theme, dark variant hidden.
+     The `.dark` class on <html> flips which one is shown. Declared AFTER
+     the base .masthead-img rule so the display override wins. */
+  .masthead-img--dark { display: none; }
+  :global(.dark) .masthead-img--light { display: none; }
+  :global(.dark) .masthead-img--dark  { display: inline-block; }
+
+  /* Monochrome black SVGs (e.g. Next.js) get inverted to white in dark mode
+     instead of needing a separate file. invert(1) alone, no hue rotation,
+     so the logo stays grayscale. */
+  :global(.dark) .masthead-img--invert-dark {
+    filter: invert(1);
+  }
+  /* Monochrome white SVGs (e.g. Astro) get inverted to black in light mode.
+     The default light theme is the one that needs the flip; dark theme
+     shows the asset as-shipped. */
+  .masthead-img--invert-light {
+    filter: invert(1);
+  }
+  :global(.dark) .masthead-img--invert-light {
+    filter: none;
   }
 
   .masthead-bullet {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1;
     opacity: 0.85;
     text-shadow: 0 0 8px color-mix(in srgb, currentColor 50%, transparent);
   }
 
-  /* Soft horizontal fade so labels enter and leave gracefully against the
+  /* Soft horizontal fade so logos enter and leave gracefully against the
      page background instead of being clipped abruptly at the edges. */
   .masthead-fade {
     background:
@@ -80,7 +259,112 @@ const bulletColors = ['--color-pink', '--color-orange', '--color-indigo', '--col
       );
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .masthead-track { animation: none; }
-  }
+  /* Reduced-motion users have the auto-scroll disabled inside the script
+     (SPEED = 0); they can still drag manually. No CSS animation override
+     needed here since we don't run any. */
 </style>
+
+<script>
+  // Marquee controller: JS-driven auto-scroll + pointer-drag scrubbing.
+  // The track is rendered twice in markup (loop = [...items, ...items])
+  // so we just need to wrap the offset at the halfway point of scrollWidth
+  // to get a seamless loop in either direction.
+  (() => {
+    const track = document.querySelector<HTMLElement>('[data-marquee-track]');
+    if (!track) return;
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // px / second. Reduced-motion users get a still strip they can scrub.
+    const SPEED = reduced ? 0 : 75;
+    // How far the pointer must travel before we treat a press as a drag
+    // (and suppress the click on whatever logo was under it).
+    const DRAG_THRESHOLD = 5;
+
+    let halfWidth = 0;
+    let offset = 0;
+    let lastTime = performance.now();
+    let dragging = false;
+    let hovering = false;
+    let dragStartX = 0;
+    let dragStartOffset = 0;
+    let dragDistance = 0;
+
+    const measure = () => {
+      // The track contains two copies of the item list — wrap at half the
+      // total scrollWidth so the seam is invisible.
+      halfWidth = track.scrollWidth / 2;
+    };
+
+    const wrap = (v: number) => {
+      if (halfWidth <= 0) return 0;
+      let x = v % halfWidth;
+      if (x < 0) x += halfWidth;
+      return x;
+    };
+
+    const tick = (now: number) => {
+      const dt = (now - lastTime) / 1000;
+      lastTime = now;
+      if (!dragging && !hovering && SPEED > 0) {
+        offset = wrap(offset + SPEED * dt);
+      }
+      track.style.transform = `translate3d(${-offset}px, 0, 0)`;
+      requestAnimationFrame(tick);
+    };
+
+    const ready = () => {
+      measure();
+      requestAnimationFrame(tick);
+    };
+
+    // Pointer events — single handler covers mouse, touch, and pen.
+    track.addEventListener('pointerdown', (e) => {
+      // Left mouse only; touch + pen always pass (button is 0 by spec).
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      dragging = true;
+      dragDistance = 0;
+      dragStartX = e.clientX;
+      dragStartOffset = offset;
+      try { track.setPointerCapture(e.pointerId); } catch {}
+      track.classList.add('is-dragging');
+    });
+
+    track.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      const delta = e.clientX - dragStartX;
+      dragDistance = Math.max(dragDistance, Math.abs(delta));
+      offset = wrap(dragStartOffset - delta);
+    });
+
+    const endDrag = () => {
+      if (!dragging) return;
+      dragging = false;
+      track.classList.remove('is-dragging');
+      // Reset lastTime so the auto-scroll resumes cleanly without
+      // applying a giant dt from the time we were dragging.
+      lastTime = performance.now();
+    };
+    track.addEventListener('pointerup', endDrag);
+    track.addEventListener('pointercancel', endDrag);
+
+    // Suppress the trailing click on whichever logo was under the pointer
+    // if the user actually dragged. Capture phase so we beat the link.
+    track.addEventListener('click', (e) => {
+      if (dragDistance > DRAG_THRESHOLD) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }, true);
+
+    // Hover pause (was a CSS rule, now JS-controlled so it integrates
+    // cleanly with the drag state).
+    track.addEventListener('pointerenter', () => { hovering = true; });
+    track.addEventListener('pointerleave', () => { hovering = false; });
+
+    // Logos may load late, changing scrollWidth. Re-measure after every
+    // image is settled and on resize.
+    window.addEventListener('resize', measure);
+    if (document.readyState === 'complete') ready();
+    else window.addEventListener('load', ready);
+  })();
+</script>
