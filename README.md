@@ -1,44 +1,31 @@
-# Astro Starter Kit: Minimal
+# Jose Daniel Villa — Portfolio
 
-```sh
-npm create astro@latest -- --template minimal
-```
+Personal portfolio site built with [Astro](https://astro.build), React islands and Tailwind CSS v4, deployed on Vercel.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Commands
 
-## 🚀 Project Structure
+| Command           | Action                                    |
+| :---------------- | :---------------------------------------- |
+| `npm install`     | Install dependencies                      |
+| `npm run dev`     | Dev server at `localhost:4321`            |
+| `npm run build`   | Production build to `./dist/`             |
+| `npm run preview` | Preview the production build locally      |
+| `npm test`        | Run the Vitest suite                      |
 
-Inside of your Astro project, you'll see the following folders and files:
+## Editing content
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+- **About:** `src/content/about.md`
+- **Experience:** one markdown file per role in `src/content/experience/` (`order` controls position, lowest first)
+- **Projects:** one markdown file per project in `src/content/projects/` (`category: selected | other`, screenshots in `src/assets/projects/<slug>/`)
+- **CV:** `public/Jose-Daniel-Villa-Resume.pdf` (linked from the hero's "View CV" button)
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## Environment
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+Copy `.env.example` to `.env`:
 
-Any static assets, like images, can be placed in the `public/` directory.
+- `PUBLIC_SITE_URL`: canonical URL used for the sitemap and OG metadata
+- `PUBLIC_WEB3FORMS_KEY`: required for the contact form to deliver messages
 
-## 🧞 Commands
+## Social card
 
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
-"# jose_villa_portfolio" 
+`src/pages/og/[route].ts` renders `/og/default.png` at build time using the static font files in `src/assets/fonts/` (instances of Bricolage Grotesque and Inter, SIL OFL 1.1).

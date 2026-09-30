@@ -1,9 +1,9 @@
 ---
 company: "Geeks5G"
 role: "Lead Full-Stack Developer"
-period: "Since 2025"
+period: "Jan 2025 — Present"
 companyUrl: "https://geeks5g.com"
-tags: ["Next.js", "Node.js", "Python", "PostgreSQL", "AWS", "Stripe", "AI"]
+tags: ["Next.js", "React Native", "Node.js", "Python", "n8n", "PostgreSQL", "AWS", "Stripe"]
 order: 2
 ---
 

@@ -14,7 +14,6 @@ import Section         from '../components/static/Section.astro';
 import Card            from '../components/static/Card.astro';
 import Tag             from '../components/static/Tag.astro';
 import ArrowIcon       from '../components/static/ArrowIcon.astro';
-import ViewMoreLink    from '../components/static/ViewMoreLink.astro';
 import ProjectDialog   from '../components/static/ProjectDialog.astro';
 import Lightbox        from '../components/static/Lightbox.astro';
 import ScrollSpy       from '../components/islands/ScrollSpy';
@@ -145,7 +144,7 @@ const socials = {
                   <Card meta={entry.data.period} href={entry.data.companyUrl}>
                     <p class="text-fg font-medium text-[15px] leading-snug
                               group-hover:text-accent transition-colors duration-base ease-brand">
-                      {entry.data.role} <span class="text-fg-faint">·</span> {entry.data.company} <ArrowIcon />
+                      {entry.data.role} <span class="text-fg-faint">·</span> {entry.data.company}{entry.data.companyUrl && <> <ArrowIcon /></>}
                     </p>
                     <div class="text-fg-muted text-[13.5px] mt-2 leading-[1.7]
                                 [&_strong]:text-fg [&_strong]:font-medium">
@@ -185,9 +184,6 @@ const socials = {
             ))}
           </div>
         </Reveal>
-        <div class="mt-8">
-          <ViewMoreLink href="#" label="View archive" />
-        </div>
       </Section>
     </Reveal>
 
