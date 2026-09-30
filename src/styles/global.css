@@ -6,6 +6,14 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Hero side-by-side layout: desktops, plus landscape phones/tablets where a
+   stacked portrait would push the headline off a short screen. Keep in sync
+   with the portrait sizing media query in Hero.astro. */
+@custom-variant hero-split {
+  @media (min-width: 1024px) { @slot; }
+  @media (min-width: 640px) and (orientation: landscape) { @slot; }
+}
+
 @theme {
   /* default = light theme — values overridden under .dark below */
   --color-bg:           #f7f5f0;

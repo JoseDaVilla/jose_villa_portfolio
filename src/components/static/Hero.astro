@@ -28,7 +28,7 @@ const { firstName, lastName, role, tagline, location, focus, socials } = Astro.p
     {/* Availability badge — solid green pill, same look as the TopNav and
         About chip so the availability signal stays consistent across the
         page. Wrapped in a link so a click takes the user to #contact. */}
-    <div class="flex flex-wrap items-center justify-center lg:justify-start
+    <div class="flex flex-wrap items-center justify-center hero-split:justify-start
                 gap-x-4 gap-y-2" style="--i: 0;">
       <a href="#contact" class="status-badge">
         <span class="status-badge-dot" aria-hidden="true">
@@ -38,15 +38,13 @@ const { firstName, lastName, role, tagline, location, focus, socials } = Astro.p
       </a>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-[1fr_minmax(0,280px)]
-                gap-x-12 lg:gap-x-16 gap-y-[clamp(20px,3vh,40px)]
-                items-start lg:items-start">
+    <div class="grid grid-cols-1 hero-split:grid-cols-[minmax(0,1fr)_auto]
+                gap-x-[clamp(28px,5vw,72px)] gap-y-[clamp(16px,3vh,40px)]
+                items-center">
 
-      <div class="order-2 lg:order-1 hero-headline-block text-center lg:text-left" style="--i: 1;">
+      <div class="order-2 hero-split:order-1 hero-headline-block min-w-0 text-center hero-split:text-left" style="--i: 1;">
         <h1 class="hero-name font-display text-fg
-                   text-[clamp(64px,min(18vw,19vh),260px)]
-                   leading-[0.88] tracking-[-0.055em] max-w-[16ch]
-                   mx-auto lg:mx-0">
+                   leading-[0.88] tracking-[-0.055em]">
           {firstName} {lastName}.
         </h1>
         <p class="hero-role font-display text-fg-muted
@@ -56,7 +54,7 @@ const { firstName, lastName, role, tagline, location, focus, socials } = Astro.p
           {role}
         </p>
 
-        <div class="flex flex-wrap items-center justify-center lg:justify-start
+        <div class="flex flex-wrap items-center justify-center hero-split:justify-start
                     gap-3 mt-[clamp(12px,1.8vh,22px)]
                     font-mono text-[11px] uppercase tracking-[0.22em] text-fg-faint">
           <span aria-hidden="true">Currently shipping</span>
@@ -77,12 +75,12 @@ const { firstName, lastName, role, tagline, location, focus, socials } = Astro.p
           class="hero-tagline max-w-[54ch] text-[clamp(15.5px,2vh,20px)]
                  leading-[1.6] text-fg-muted
                  mt-[clamp(14px,2.2vh,26px)]
-                 mx-auto lg:mx-0"
+                 mx-auto hero-split:mx-0"
           set:html={tagline}
         />
 
 
-        <div class="flex flex-wrap items-center justify-center lg:justify-start
+        <div class="flex flex-wrap items-center justify-center hero-split:justify-start
                     gap-3 sm:gap-4 mt-[clamp(16px,2.4vh,28px)]">
           <a href="#work" class="btn-primary group">
             View selected work
@@ -134,10 +132,8 @@ const { firstName, lastName, role, tagline, location, focus, socials } = Astro.p
       {/* Right-side photo — silhouette floats on a single neutral glow, no chrome */}
       <div
         data-portrait-anchor
-        class="portrait-stage relative order-1 lg:order-2
-               w-full max-w-[clamp(200px,40vw,260px)] lg:max-w-[280px]
-               mx-auto lg:mx-0
-               lg:-mt-[clamp(8px,3vh,40px)]"
+        class="portrait-stage relative order-1 hero-split:order-2
+               mx-auto hero-split:mx-0"
         style="--i: 2;"
       >
         <div class="portrait-glow" aria-hidden="true"></div>
@@ -170,7 +166,15 @@ const { firstName, lastName, role, tagline, location, focus, socials } = Astro.p
 
 <style>
   /* Headline lockup — heavy name + light role subtitle, both Bricolage Grotesque */
+  /* The headline block is a size container so the name can be sized to the
+     column it actually sits in. "Jose Villa." renders ~4.15em wide, so 23cqi
+     always fits on one line; 19vh keeps it from dominating short screens. */
+  .hero-headline-block {
+    container-type: inline-size;
+  }
   .hero-name {
+    font-size: clamp(44px, min(23cqi, 19vh), 128px);
+    white-space: nowrap;
     font-weight: 800;
     font-variation-settings: "wdth" 100, "opsz" 96;
     font-feature-settings: "ss01", "ss02", "calt";
@@ -192,8 +196,30 @@ const { firstName, lastName, role, tagline, location, focus, socials } = Astro.p
   /* Photo treatment — the source PNG has a transparent background; a single
      soft neutral radial glow sits behind it so the silhouette has somewhere
      to land without competing with the headline. No color, no animation. */
+  /* Portrait scales with both width and height instead of disappearing:
+     stacked (portrait phones/tablets) it shares the column with the text,
+     side-by-side it grows with the viewport up to 380px. */
   .portrait-stage {
     isolation: isolate;
+    width: clamp(150px, min(52vw, 30vh), 260px);
+  }
+  @media (min-width: 1024px), (min-width: 640px) and (orientation: landscape) {
+    .portrait-stage {
+      width: clamp(140px, min(28vw, 46vh), 380px);
+    }
+    /* Side by side, the name only gets its column: let it grow past the
+       stacked-layout cap (23cqi still keeps it on one line). */
+    .hero-name {
+      font-size: clamp(44px, min(23cqi, 19vh), 220px);
+    }
+  }
+  /* Landscape phones: the text column is taller than the screen, so pin the
+     portrait to the top instead of centering it below the fold. */
+  @media (orientation: landscape) and (max-height: 600px) {
+    .portrait-stage {
+      align-self: start;
+      width: clamp(120px, 38vh, 380px);
+    }
   }
   .portrait-glow {
     position: absolute;
@@ -254,13 +280,6 @@ const { firstName, lastName, role, tagline, location, focus, socials } = Astro.p
   @media (max-height: 820px) {
     .scroll-cue { display: none; }
   }
-  /* Drop the portrait when there isn't room for it — keeps the headline + CTAs in fold */
-  @media (max-height: 720px) {
-    [data-portrait-anchor] {
-      display: none;
-    }
-  }
-
   @media (prefers-reduced-motion: reduce) {
     .scroll-cue-line { animation: none; }
   }
