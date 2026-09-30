@@ -1,7 +1,7 @@
 ---
 company: "Kaseya"
-role: "Associate Professional Services Consultant"
-period: "Since 2026"
+role: "Professional Services Consultant"
+period: "Mar 2026 — Present"
 companyUrl: "https://www.kaseya.com"
 tags: ["Kaseya", "IT Automation", "Integrations", "SQL", "PowerShell", "Consulting"]
 order: 1

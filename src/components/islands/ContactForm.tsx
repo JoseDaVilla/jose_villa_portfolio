@@ -70,15 +70,12 @@ export default function ContactForm() {
     setStatus('submitting');
     setErrorMsg('');
 
-    // No Web3Forms key configured — show the success screen without sending.
+    // No Web3Forms key configured — nothing can be delivered, so never claim
+    // success; surface the error state, which points to the direct email.
     // (The form deliberately never falls back to a mailto: handoff.)
     if (!accessKey) {
-      await new Promise((r) => setTimeout(r, 650));
-      setStatus('success');
-      setName('');
-      setEmail('');
-      setMessage('');
-      setTopic(null);
+      setStatus('error');
+      setErrorMsg("The form isn't available right now. Please email me directly.");
       return;
     }
 
