@@ -13,7 +13,7 @@ export const { getStaticPaths, GET } = await OGImageRoute({
   pages: {
     default: {
       title: 'Jose Daniel Villa',
-      description: 'Lead Full-Stack Developer · I build the websites and platforms businesses actually run on.',
+      description: 'Lead Full-Stack Developer · Web applications, SaaS platforms and automation that businesses run on.',
     },
   },
   getImageOptions: (_, page) => ({
