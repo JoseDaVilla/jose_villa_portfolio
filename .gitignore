@@ -24,6 +24,7 @@ Thumbs.db
 
 # editor / tooling
 .idea/
-.claude/
+.claude/*
+!.claude/skills/
 .vercel
 
