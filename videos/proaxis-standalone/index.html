@@ -1,0 +1,1833 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>ProAxis Standalone</title>
+    <script src="assets/vendor/gsap.min.js"></script>
+    <style>
+      :root {
+        --bg-0: #0b0b2a;
+        --bg-1: #1a1650;
+        --indigo: #6c7cff;
+        --purple: #a66bff;
+        --violet: #5b4bff;
+        --green: #34d399;
+        --green-ink: #06281c;
+        --red: #ff5d73;
+        --orange: #ff8a00;
+        --orange-2: #e05200;
+        --ink: #ffffff;
+        --ink-2: #b9bde6;
+        --ink-3: #7d82b8;
+        --line: rgba(140, 150, 255, 0.18);
+        --panel: rgba(20, 18, 64, 0.72);
+        --panel-edge: rgba(150, 140, 255, 0.28);
+        --grad: linear-gradient(90deg, #6c7cff 0%, #a66bff 50%, #6c7cff 100%);
+        --grad-solid: linear-gradient(90deg, #6c7cff 0%, #a66bff 100%);
+        --display: "Montserrat", "Helvetica Neue", sans-serif;
+        --mono: "JetBrains Mono", "Courier New", monospace;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--bg-0);
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: var(--bg-0);
+        font-family: var(--display);
+        color: var(--ink);
+      }
+      .clip {
+        position: absolute;
+        inset: 0;
+      }
+      .scene-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        padding: 120px 160px;
+        gap: 24px;
+      }
+      .mask {
+        display: block;
+        overflow: hidden;
+        padding: 0.04em 0.06em 0.1em;
+        margin: -0.04em -0.06em -0.1em;
+      }
+      .line {
+        display: block;
+      }
+      .grad-text {
+        background-image: var(--grad);
+        background-size: 200% 100%;
+        background-position: 0% 50%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .kicker {
+        font-family: var(--mono);
+        font-weight: 700;
+        font-size: 22px;
+        letter-spacing: 0.32em;
+        text-transform: uppercase;
+        color: var(--ink-2);
+      }
+      .mini-k {
+        font-family: var(--mono);
+        font-weight: 700;
+        font-size: 17px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+      }
+      .pill {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 28px;
+        border-radius: 100px;
+        border: 1px solid var(--panel-edge);
+        background: rgba(30, 26, 90, 0.55);
+        font-family: var(--mono);
+        font-weight: 700;
+        font-size: 21px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--ink-2);
+        white-space: nowrap;
+      }
+      .pill b {
+        color: var(--ink);
+      }
+      .dot-live {
+        display: block;
+        width: 12px;
+        height: 12px;
+        flex: 0 0 12px;
+        border-radius: 50%;
+        background: var(--green);
+        box-shadow: 0 0 14px var(--green);
+      }
+      .card {
+        position: relative;
+        border-radius: 26px;
+        border: 1px solid var(--panel-edge);
+        background: var(--panel);
+        box-shadow: 0 40px 120px rgba(5, 4, 30, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        padding: 26px 28px 28px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+      .panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-family: var(--mono);
+        font-weight: 700;
+        font-size: 17px;
+        letter-spacing: 0.2em;
+        color: var(--ink-3);
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+      .dots {
+        display: flex;
+        gap: 9px;
+      }
+      .dots i {
+        display: block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: rgba(185, 189, 230, 0.3);
+      }
+      .divider {
+        height: 1px;
+        background: var(--line);
+      }
+      .row-check {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        flex: 0 0 34px;
+        border-radius: 50%;
+        background: var(--green);
+      }
+      .row-check svg {
+        display: block;
+        width: 18px;
+        height: 18px;
+      }
+
+      /* ---------- background ---------- */
+      #bg {
+        overflow: hidden;
+      }
+      .bg-base {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(120% 90% at 50% 110%, var(--bg-1) 0%, rgba(26, 22, 80, 0) 70%),
+          linear-gradient(180deg, #08081f 0%, var(--bg-0) 45%, #15124a 100%);
+      }
+      .bg-grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(120, 130, 255, 0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(120, 130, 255, 0.05) 1px, transparent 1px);
+        background-size: 96px 96px;
+      }
+      .glow {
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
+      }
+      #glow-a {
+        left: -260px;
+        top: -320px;
+        width: 1100px;
+        height: 1100px;
+        background: radial-gradient(circle, rgba(108, 124, 255, 0.28) 0%, rgba(108, 124, 255, 0) 65%);
+      }
+      #glow-b {
+        left: 1060px;
+        top: 380px;
+        width: 1200px;
+        height: 1200px;
+        background: radial-gradient(circle, rgba(166, 107, 255, 0.26) 0%, rgba(166, 107, 255, 0) 65%);
+      }
+      #net-wrap {
+        position: absolute;
+        left: -80px;
+        top: -40px;
+        width: 2080px;
+        height: 1160px;
+      }
+      #net {
+        display: block;
+        width: 2080px;
+        height: 1160px;
+      }
+      .streak {
+        position: absolute;
+        left: 0;
+        top: 300px;
+        width: 1920px;
+        height: 2px;
+        background: linear-gradient(90deg, rgba(108, 124, 255, 0) 0%, rgba(108, 124, 255, 0.55) 30%, rgba(166, 107, 255, 0) 75%);
+        transform-origin: left center;
+      }
+      .vignette {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 55%, rgba(3, 3, 16, 0.65) 100%);
+      }
+
+      /* ---------- logo ---------- */
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 0.12em;
+      }
+      .logo-mark {
+        display: block;
+        overflow: visible;
+      }
+      .chev {
+        transform-box: fill-box;
+        transform-origin: 50% 50%;
+      }
+      .wordmark-mask {
+        display: block;
+        overflow: hidden;
+        padding: 0.05em 0.1em 0.12em 0.02em;
+      }
+      .wordmark {
+        display: block;
+        font-weight: 700;
+        letter-spacing: -0.035em;
+        line-height: 1;
+        color: var(--ink);
+      }
+      .logo-glow {
+        position: absolute;
+        width: 900px;
+        height: 900px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(140, 110, 255, 0.45) 0%, rgba(108, 124, 255, 0.12) 35%, rgba(11, 11, 42, 0) 68%);
+        pointer-events: none;
+      }
+
+      /* ---------- chevron wipe bands ---------- */
+      #wipe-layer {
+        pointer-events: none;
+        overflow: hidden;
+      }
+      .band {
+        position: absolute;
+        top: -200px;
+        left: 0;
+        height: 1480px;
+      }
+      .band-inner {
+        width: 100%;
+        height: 100%;
+        transform: skewX(-22deg);
+      }
+      #band-1 {
+        width: 520px;
+      }
+      #band-1 .band-inner {
+        background: linear-gradient(90deg, rgba(108, 124, 255, 0) 0%, rgba(108, 124, 255, 0.85) 45%, #a66bff 100%);
+      }
+      #band-2 {
+        width: 200px;
+      }
+      #band-2 .band-inner {
+        background: linear-gradient(90deg, rgba(166, 107, 255, 0) 0%, rgba(255, 255, 255, 0.85) 100%);
+      }
+
+      /* ---------- 1: logo sting ---------- */
+      #s-logo .scene-content {
+        gap: 44px;
+      }
+      #a-logo {
+        font-size: 168px;
+        position: relative;
+        z-index: 2;
+      }
+      #a-glow-wrap {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #a-pill {
+        position: relative;
+        z-index: 2;
+      }
+
+      /* ---------- 2: headline ---------- */
+      #s-head .scene-content {
+        gap: 4px;
+      }
+      #h-wave {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 390px;
+        height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        opacity: 0.16;
+      }
+      .wv {
+        display: block;
+        width: 10px;
+        border-radius: 6px;
+        background: var(--grad-solid);
+      }
+      .h-l1 {
+        display: flex;
+        gap: 0.26em;
+        font-size: 124px;
+        font-weight: 900;
+        letter-spacing: -0.035em;
+        line-height: 1.04;
+      }
+      .h-l2 {
+        font-size: 160px;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+        line-height: 1.04;
+      }
+      #h-sub {
+        margin-top: 34px;
+        font-size: 40px;
+        font-weight: 400;
+        color: var(--ink-2);
+        white-space: nowrap;
+      }
+      #h-sub b {
+        font-weight: 700;
+        color: var(--ink);
+      }
+
+      /* ---------- 3: live routing ---------- */
+      #s-route .scene-content {
+        justify-content: center;
+        align-items: stretch;
+        padding: 96px 120px;
+        gap: 40px;
+      }
+      #r-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 92px;
+      }
+      #r-titles {
+        display: grid;
+        height: 92px;
+        overflow: hidden;
+      }
+      .r-title {
+        grid-area: 1 / 1;
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        font-size: 56px;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        white-space: nowrap;
+      }
+      .r-num {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 70px;
+        height: 70px;
+        flex: 0 0 70px;
+        border-radius: 50%;
+        background: var(--grad-solid);
+        font-family: var(--mono);
+        font-size: 32px;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      #r-steps {
+        display: flex;
+        align-items: center;
+        gap: 0;
+      }
+      .st {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        border: 1px solid var(--panel-edge);
+        background: rgba(30, 26, 90, 0.6);
+        font-family: var(--mono);
+        font-weight: 700;
+        font-size: 19px;
+        color: var(--ink-3);
+      }
+      .st-on {
+        position: absolute;
+        inset: -1px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: var(--grad-solid);
+        color: var(--ink);
+      }
+      .st-ln {
+        display: block;
+        width: 44px;
+        height: 3px;
+        background: rgba(140, 150, 255, 0.18);
+      }
+      .st-ln i {
+        display: block;
+        width: 100%;
+        height: 100%;
+        background: var(--grad-solid);
+        transform-origin: left center;
+      }
+      #r-flow {
+        display: flex;
+        align-items: stretch;
+        height: 404px;
+      }
+      #pub,
+      #buy {
+        flex: 0 0 450px;
+        width: 450px;
+      }
+      #auc {
+        flex: 0 0 540px;
+        width: 540px;
+      }
+      .link {
+        position: relative;
+        flex: 0 0 120px;
+        display: flex;
+        align-items: center;
+      }
+      .link-track {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        height: 3px;
+        margin-top: -1px;
+        background: rgba(140, 150, 255, 0.14);
+      }
+      .link-fill {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        height: 3px;
+        margin-top: -1px;
+        background: var(--grad-solid);
+        box-shadow: 0 0 14px rgba(140, 120, 255, 0.8);
+        transform-origin: left center;
+      }
+      .link-dot {
+        position: absolute;
+        left: -8px;
+        top: 50%;
+        width: 18px;
+        height: 18px;
+        margin-top: -9px;
+        border-radius: 50%;
+        background: #ffffff;
+        box-shadow: 0 0 18px 6px rgba(166, 107, 255, 0.85);
+      }
+      .who {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .ava {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 62px;
+        height: 62px;
+        flex: 0 0 62px;
+        border-radius: 18px;
+        font-size: 24px;
+        font-weight: 800;
+        color: var(--ink);
+      }
+      .ava-a {
+        background: linear-gradient(135deg, #3e58ff, #7b5cff);
+      }
+      .ava-b {
+        background: linear-gradient(135deg, #10b981, #2f8f83);
+      }
+      .who-name {
+        font-size: 28px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        white-space: nowrap;
+      }
+      .who-sub {
+        margin-top: 4px;
+        font-size: 20px;
+        font-weight: 400;
+        color: var(--ink-2);
+        white-space: nowrap;
+      }
+      .call-row {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+      .ring-wrap {
+        position: relative;
+        width: 70px;
+        height: 70px;
+        flex: 0 0 70px;
+      }
+      .ring {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        border: 2px solid var(--green);
+      }
+      .phone {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: var(--green);
+        box-shadow: 0 0 30px rgba(52, 211, 153, 0.55);
+      }
+      .phone svg {
+        display: block;
+        width: 34px;
+        height: 34px;
+      }
+      .call-num {
+        margin-top: 6px;
+        font-family: var(--mono);
+        font-size: 33px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      .tags {
+        display: flex;
+        gap: 12px;
+        margin-top: auto;
+      }
+      .tag {
+        display: block;
+        padding: 10px 18px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(150, 140, 255, 0.2);
+        font-size: 21px;
+        font-weight: 700;
+        color: var(--ink-2);
+        white-space: nowrap;
+      }
+      .live {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--green);
+      }
+      #bids {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      #bid-hl {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 68px;
+        border-radius: 16px;
+        background: linear-gradient(90deg, var(--violet), rgba(166, 107, 255, 0.85));
+        box-shadow: 0 12px 40px rgba(91, 75, 255, 0.55);
+      }
+      .bid {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        height: 68px;
+        padding: 0 22px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.04);
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--ink-2);
+      }
+      .bid-rank {
+        font-family: var(--mono);
+        font-size: 18px;
+        color: var(--ink-3);
+        width: 22px;
+      }
+      .bid-name {
+        flex: 1 1 auto;
+        white-space: nowrap;
+      }
+      .win-tag {
+        display: block;
+        padding: 6px 12px;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #2a1f8f;
+        font-family: var(--mono);
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+      .bid-amt {
+        font-family: var(--mono);
+        font-size: 30px;
+        font-weight: 700;
+        color: var(--ink);
+        min-width: 74px;
+        text-align: right;
+      }
+      .cap {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: auto;
+        font-size: 21px;
+        font-weight: 400;
+        color: var(--ink-2);
+        white-space: nowrap;
+      }
+      .cap b {
+        color: var(--ink);
+        font-weight: 800;
+      }
+      .cap svg {
+        display: block;
+        width: 24px;
+        height: 24px;
+        flex: 0 0 24px;
+      }
+      .status {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 24px;
+        font-weight: 800;
+        color: var(--green);
+      }
+      .timer-row {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+      }
+      .timer {
+        font-family: var(--mono);
+        font-size: 78px;
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: -0.02em;
+      }
+      .badge-bill {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 18px 10px 12px;
+        border-radius: 100px;
+        background: rgba(52, 211, 153, 0.16);
+        border: 1px solid rgba(52, 211, 153, 0.6);
+        font-size: 22px;
+        font-weight: 800;
+        color: var(--green);
+        white-space: nowrap;
+      }
+      .badge-bill .row-check {
+        width: 28px;
+        height: 28px;
+        flex: 0 0 28px;
+      }
+      .badge-bill .row-check svg {
+        width: 15px;
+        height: 15px;
+      }
+      #r-money {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        height: 150px;
+      }
+      .m-cell {
+        flex: 1 1 0;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        height: 150px;
+        padding: 22px 30px;
+        gap: 12px;
+      }
+      .m-l {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .m-cell .mini-k {
+        white-space: nowrap;
+        letter-spacing: 0.12em;
+      }
+      .m-meta {
+        align-self: flex-end;
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--ink-3);
+        white-space: nowrap;
+      }
+      #m-keep .m-meta {
+        color: #9ff0cf;
+      }
+      .m-amt {
+        font-size: 62px;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        line-height: 1;
+      }
+      .m-op {
+        flex: 0 0 40px;
+        text-align: center;
+        font-size: 60px;
+        font-weight: 300;
+        color: var(--ink-3);
+      }
+      #m-keep {
+        border-color: rgba(52, 211, 153, 0.7);
+        background: linear-gradient(135deg, rgba(16, 80, 64, 0.75), rgba(20, 18, 64, 0.8));
+        box-shadow: 0 30px 90px rgba(52, 211, 153, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      }
+      #m-keep .mini-k {
+        color: var(--green);
+      }
+      #m-keep .m-amt {
+        color: var(--green);
+      }
+
+      /* ---------- 4: AI verdict ---------- */
+      #s-verdict .scene-content {
+        padding: 110px 140px;
+        gap: 46px;
+      }
+      #v-head {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 18px;
+      }
+      #v-head .kicker {
+        color: var(--purple);
+      }
+      .v-h {
+        font-size: 66px;
+        font-weight: 900;
+        letter-spacing: -0.035em;
+        white-space: nowrap;
+      }
+      #v-cards {
+        display: flex;
+        gap: 40px;
+        width: 100%;
+      }
+      .vcard {
+        flex: 1 1 0;
+        padding: 30px 34px 34px;
+        gap: 20px;
+      }
+      .v-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .v-id {
+        font-family: var(--mono);
+        font-weight: 700;
+        font-size: 26px;
+        letter-spacing: 0.08em;
+        color: var(--ink);
+      }
+      .v-vd {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .v-chip {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 20px 9px 10px;
+        border-radius: 100px;
+        font-size: 24px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+      .v-ok {
+        background: rgba(52, 211, 153, 0.16);
+        border: 1px solid rgba(52, 211, 153, 0.65);
+        color: var(--green);
+      }
+      .v-no {
+        background: rgba(255, 93, 115, 0.16);
+        border: 1px solid rgba(255, 93, 115, 0.7);
+        color: var(--red);
+      }
+      .v-chip .row-check {
+        width: 30px;
+        height: 30px;
+        flex: 0 0 30px;
+      }
+      .v-chip .row-check svg {
+        width: 16px;
+        height: 16px;
+      }
+      .x-dot {
+        background: var(--red);
+      }
+      .v-conf {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+      }
+      .v-pct {
+        font-size: 50px;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+      }
+      .v-bar {
+        height: 10px;
+        border-radius: 10px;
+        background: rgba(140, 150, 255, 0.16);
+        overflow: hidden;
+        margin-top: -8px;
+      }
+      .v-fill {
+        display: block;
+        height: 100%;
+        border-radius: 10px;
+        transform-origin: left center;
+      }
+      #va-fill {
+        width: 96%;
+        background: linear-gradient(90deg, #22b07f, var(--green));
+      }
+      #vb-fill {
+        width: 91%;
+        background: linear-gradient(90deg, #d93a55, var(--red));
+      }
+      .v-quote {
+        font-size: 30px;
+        font-weight: 700;
+        line-height: 1.3;
+        color: var(--ink);
+      }
+      .v-note {
+        margin-top: -6px;
+        font-size: 24px;
+        line-height: 1.35;
+        color: var(--ink-2);
+      }
+      .v-checks {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px 24px;
+        margin-top: auto;
+        padding-top: 14px;
+      }
+      .v-ck {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        font-size: 23px;
+        font-weight: 700;
+        color: var(--ink-2);
+        white-space: nowrap;
+      }
+      .v-tags {
+        display: flex;
+        gap: 14px;
+        margin-top: auto;
+        padding-top: 14px;
+      }
+      .v-tag {
+        display: block;
+        padding: 12px 20px;
+        border-radius: 12px;
+        font-size: 22px;
+        font-weight: 800;
+        white-space: nowrap;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(150, 140, 255, 0.22);
+        color: var(--ink-2);
+      }
+      .v-tag-red {
+        background: rgba(255, 93, 115, 0.14);
+        border-color: rgba(255, 93, 115, 0.55);
+        color: var(--red);
+      }
+
+      /* ---------- 5: campaign ---------- */
+      #s-camp .scene-content {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 70px;
+        padding: 120px 140px 120px 160px;
+      }
+      #p-copy {
+        flex: 0 0 760px;
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+      }
+      #p-copy .kicker {
+        color: var(--purple);
+      }
+      .p-head {
+        font-size: 92px;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+        line-height: 1.02;
+      }
+      #p-card {
+        flex: 0 0 820px;
+        width: 820px;
+        padding: 30px 32px 32px;
+        gap: 14px;
+      }
+      .p-title {
+        font-size: 38px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        margin-bottom: 4px;
+      }
+      .p-row {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        height: 92px;
+        padding: 0 24px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(150, 140, 255, 0.12);
+      }
+      .tg {
+        position: relative;
+        width: 72px;
+        height: 40px;
+        flex: 0 0 72px;
+        border-radius: 40px;
+        background: rgba(185, 189, 230, 0.18);
+      }
+      .tg-on {
+        position: absolute;
+        inset: 0;
+        border-radius: 40px;
+        background: var(--grad-solid);
+        box-shadow: 0 0 22px rgba(140, 120, 255, 0.6);
+      }
+      .tg-k {
+        position: absolute;
+        left: 4px;
+        top: 4px;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #ffffff;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+      }
+      .p-name {
+        flex: 1 1 auto;
+        font-size: 30px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+      .p-price {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 2px;
+      }
+      .p-amt {
+        font-family: var(--mono);
+        font-size: 34px;
+        font-weight: 700;
+        line-height: 1.05;
+      }
+      .p-unit {
+        font-size: 20px;
+        font-weight: 400;
+        color: var(--ink-2);
+        white-space: nowrap;
+      }
+
+      /* ---------- 6: stats ---------- */
+      #s-stats .scene-content {
+        gap: 60px;
+        padding: 120px 140px;
+      }
+      #n-head {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 18px;
+      }
+      .n-h {
+        font-size: 96px;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+        line-height: 1;
+      }
+      #n-tiles {
+        display: flex;
+        gap: 32px;
+        width: 100%;
+      }
+      .n-tile {
+        flex: 1 1 0;
+        height: 300px;
+        padding: 36px 36px 38px;
+        gap: 14px;
+        justify-content: space-between;
+      }
+      .n-num {
+        font-size: 104px;
+        font-weight: 900;
+        letter-spacing: -0.045em;
+        line-height: 1;
+        white-space: nowrap;
+      }
+      .n-lab {
+        font-size: 27px;
+        font-weight: 700;
+        color: var(--ink-2);
+        white-space: nowrap;
+      }
+      .n-bar {
+        height: 8px;
+        border-radius: 8px;
+        background: rgba(140, 150, 255, 0.16);
+        overflow: hidden;
+      }
+      .n-fill {
+        display: block;
+        height: 100%;
+        border-radius: 8px;
+        background: var(--grad-solid);
+        transform-origin: left center;
+      }
+
+      /* ---------- 7: lockup ---------- */
+      #s-lock .scene-content {
+        gap: 0;
+      }
+      #e-tag {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        white-space: nowrap;
+        font-size: 80px;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+        margin-bottom: 56px;
+      }
+      #e-logo-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #e-glow-wrap {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 0;
+        height: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #e-logo {
+        position: relative;
+        font-size: 196px;
+      }
+      #e-cta-row {
+        display: flex;
+        align-items: center;
+        margin-top: 70px;
+      }
+      #e-cta {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 26px 46px;
+        border-radius: 18px;
+        background: linear-gradient(180deg, var(--orange) 0%, var(--orange-2) 100%);
+        text-shadow: 0 1px 2px rgba(120, 40, 0, 0.35);
+        box-shadow: 0 20px 60px rgba(255, 138, 0, 0.35);
+        font-size: 36px;
+        font-weight: 700;
+        color: #ffffff;
+        white-space: nowrap;
+      }
+      #e-cta svg {
+        display: block;
+        width: 34px;
+        height: 34px;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="proaxis-standalone"
+      data-start="0"
+      data-duration="20.4"
+      data-fps="30"
+      data-width="1920"
+      data-height="1080"
+    >
+      <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+        <defs>
+          <linearGradient id="chev-grad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#7d8bff" />
+            <stop offset="100%" stop-color="#b07aff" />
+          </linearGradient>
+          <linearGradient id="chev-grad-2" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#ffffff" />
+            <stop offset="100%" stop-color="#d9d4ff" />
+          </linearGradient>
+        </defs>
+      </svg>
+
+      <!-- ===== Background (full duration) ===== -->
+      <div id="bg" class="clip" data-start="0" data-duration="20.4" data-track-index="0">
+        <div class="bg-base"></div>
+        <div class="bg-grid"></div>
+        <div id="glow-a" class="glow" data-layout-allow-overflow="true"></div>
+        <div id="glow-b" class="glow" data-layout-allow-overflow="true"></div>
+        <div id="net-wrap" data-layout-allow-overflow="true">
+          <svg id="net" viewBox="0 0 2080 1160" xmlns="http://www.w3.org/2000/svg">
+            <g id="net-lines"></g>
+            <g id="net-dots"></g>
+          </svg>
+        </div>
+        <div id="streak" class="streak"></div>
+        <div class="vignette"></div>
+      </div>
+
+      <!-- ===== 1: logo sting 0 - 2.4 ===== -->
+      <section id="s-logo" class="clip" data-start="0" data-duration="2.4" data-track-index="1">
+        <div id="a-glow-wrap"><div id="a-glow" class="logo-glow"></div></div>
+        <div class="scene-content">
+          <div id="a-group">
+            <div id="a-logo" class="logo">
+              <svg class="logo-mark" width="1.12em" height="0.8em" viewBox="0 0 112 80" aria-hidden="true">
+                <polygon id="a-chev-1" class="chev" points="10,4 36,4 62,40 36,76 10,76 36,40" fill="url(#chev-grad)" />
+                <polygon id="a-chev-2" class="chev" points="46,4 72,4 98,40 72,76 46,76 72,40" fill="url(#chev-grad-2)" />
+              </svg>
+              <span class="wordmark-mask" data-layout-allow-overflow="true"><span id="a-word" class="wordmark">ProAxis</span></span>
+            </div>
+          </div>
+          <div id="a-pill" class="pill"><span class="dot-live"></span>New · <b>ProAxis Standalone</b></div>
+        </div>
+      </section>
+
+      <!-- ===== 2: headline 2.4 - 4.4 ===== -->
+      <section id="s-head" class="clip" data-start="2.4" data-duration="2" data-track-index="1">
+        <div id="h-wave" aria-hidden="true" data-layout-allow-occlusion="true" data-layout-allow-overflow="true"></div>
+        <div class="scene-content">
+          <div class="h-l1">
+            <span class="mask" data-layout-allow-overflow="true"><span class="line h-w">Turn</span></span>
+            <span class="mask" data-layout-allow-overflow="true"><span class="line h-w">every</span></span>
+            <span class="mask" data-layout-allow-overflow="true"><span class="line h-w">call</span></span>
+          </div>
+          <div class="mask" data-layout-allow-overflow="true"><span id="h-l2" class="line h-l2">into <span id="h-rev" class="grad-text">revenue.</span></span></div>
+          <div id="h-sub">Run your own call exchange. <b>Live today, not next quarter.</b></div>
+        </div>
+      </section>
+
+      <!-- ===== 3: live routing 4.4 - 10.0 ===== -->
+      <section id="s-route" class="clip" data-start="4.4" data-duration="5.6" data-track-index="1">
+        <div class="scene-content">
+          <div id="r-head">
+            <div id="r-titles" data-layout-allow-overflow="true">
+              <div class="r-title" id="rt1"><span class="r-num">1</span><span>A publisher sends a call</span></div>
+              <div class="r-title" id="rt2"><span class="r-num">2</span><span>ProAxis finds the <span class="grad-text">best buyer</span></span></div>
+              <div class="r-title" id="rt3"><span class="r-num">3</span><span>Your buyer answers</span></div>
+              <div class="r-title" id="rt4"><span class="r-num">$</span><span>The money on that call</span></div>
+            </div>
+            <div id="r-steps">
+              <span class="st"><span class="st-off" id="so1">1</span><span class="st-on" id="st1">1</span></span>
+              <span class="st-ln"><i id="sl1"></i></span>
+              <span class="st"><span class="st-off" id="so2">2</span><span class="st-on" id="st2">2</span></span>
+              <span class="st-ln"><i id="sl2"></i></span>
+              <span class="st"><span class="st-off" id="so3">3</span><span class="st-on" id="st3">3</span></span>
+              <span class="st-ln"><i id="sl3"></i></span>
+              <span class="st"><span class="st-off" id="so4">$</span><span class="st-on" id="st4">$</span></span>
+            </div>
+          </div>
+
+          <div id="r-flow">
+            <div id="pub" class="card">
+              <div class="panel-head"><span>Publisher</span><span class="dots"><i></i><i></i><i></i></span></div>
+              <div class="who">
+                <div class="ava ava-a">BL</div>
+                <div>
+                  <div class="who-name">BrightLeads Media</div>
+                  <div class="who-sub">Your publisher</div>
+                </div>
+              </div>
+              <div class="divider"></div>
+              <div class="call-row">
+                <div class="ring-wrap" data-layout-allow-overflow="true">
+                  <span class="ring" id="ring-1"></span>
+                  <span class="ring" id="ring-2"></span>
+                  <div class="phone" id="phone">
+                    <svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z" fill="#06281c" /></svg>
+                  </div>
+                </div>
+                <div>
+                  <div class="mini-k">Incoming call</div>
+                  <div class="call-num">(512) 555-0142</div>
+                </div>
+              </div>
+              <div class="tags"><span class="tag">Austin, TX</span><span class="tag">Plumbing</span></div>
+            </div>
+
+            <div class="link" id="link-1">
+              <span class="link-track"></span>
+              <span class="link-fill" id="lf-1"></span>
+              <span class="link-dot" id="ld-1"></span>
+            </div>
+
+            <div id="auc" class="card">
+              <div class="panel-head"><span>ProAxis · Live auction</span><span class="live"><span class="dot-live"></span>Live</span></div>
+              <div id="bids">
+                <div id="bid-hl"></div>
+                <div class="bid" id="bid-1"><span class="bid-rank">01</span><span class="bid-name">Pipe Pros</span><span class="win-tag" id="win-tag">Winner</span><span class="bid-amt" id="amt-1">$32</span></div>
+                <div class="bid" id="bid-2"><span class="bid-rank">02</span><span class="bid-name">CoolAir HVAC</span><span class="bid-amt" id="amt-2">$28</span></div>
+                <div class="bid" id="bid-3"><span class="bid-rank">03</span><span class="bid-name">Summit Roofing</span><span class="bid-amt" id="amt-3">$25</span></div>
+              </div>
+              <div class="cap" id="auc-cap">
+                <svg viewBox="0 0 24 24"><path d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12L13 2z" fill="#a66bff" /></svg>
+                <span>Highest eligible bid wins, in <b>0.2s</b>.</span>
+              </div>
+            </div>
+
+            <div class="link" id="link-2">
+              <span class="link-track"></span>
+              <span class="link-fill" id="lf-2"></span>
+              <span class="link-dot" id="ld-2"></span>
+            </div>
+
+            <div id="buy" class="card">
+              <div class="panel-head"><span>Buyer</span><span class="dots"><i></i><i></i><i></i></span></div>
+              <div class="who">
+                <div class="ava ava-b">PP</div>
+                <div>
+                  <div class="who-name">Pipe Pros</div>
+                  <div class="who-sub">Your buyer · Plumbing</div>
+                </div>
+              </div>
+              <div class="divider"></div>
+              <div class="status" id="buy-status"><span class="dot-live"></span>Connected</div>
+              <div class="mini-k">Call duration</div>
+              <div class="timer-row">
+                <div class="timer" id="timer">4:12</div>
+                <div class="badge-bill" id="bill">
+                  <span class="row-check"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#06281c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" /></svg></span>Billable
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="r-money">
+            <div class="card m-cell" id="m-in">
+              <div class="m-l"><span class="mini-k">Buyer pays you</span><span class="m-amt" id="mv-in">$32.00</span></div>
+              <span class="m-meta">from Pipe Pros</span>
+            </div>
+            <span class="m-op" id="op-1">−</span>
+            <div class="card m-cell" id="m-out">
+              <div class="m-l"><span class="mini-k">You pay the publisher</span><span class="m-amt" id="mv-out">$20.00</span></div>
+              <span class="m-meta">to BrightLeads</span>
+            </div>
+            <span class="m-op" id="op-2">=</span>
+            <div class="card m-cell" id="m-keep">
+              <div class="m-l"><span class="mini-k">You keep</span><span class="m-amt" id="mv-keep">$12.00</span></div>
+              <span class="m-meta">37.5% margin</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== 4: AI verdict 10.0 - 12.8 ===== -->
+      <section id="s-verdict" class="clip" data-start="10" data-duration="2.8" data-track-index="1">
+        <div class="scene-content">
+          <div id="v-head">
+            <div id="v-kicker" class="kicker">AI Verdict&trade;</div>
+            <div class="v-h">
+              <span class="mask" data-layout-allow-overflow="true"><span id="v-line" class="line">Know what's <span class="grad-text">real</span> before you pay for it.</span></span>
+            </div>
+          </div>
+          <div id="v-cards">
+            <div class="card vcard" id="va">
+              <div class="v-top">
+                <span class="v-id">CL-8842</span>
+                <span class="v-vd"><span class="mini-k">Verdict</span>
+                  <span class="v-chip v-ok" id="va-chip"><span class="row-check"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#06281c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" /></svg></span>Qualified</span>
+                </span>
+              </div>
+              <div class="v-conf"><span class="mini-k">Confidence</span><span class="v-pct" id="va-pct">96%</span></div>
+              <div class="v-bar"><span class="v-fill" id="va-fill"></span></div>
+              <div class="v-quote">“Homeowner in 33612 with active roof leak.”</div>
+              <div class="v-checks">
+                <div class="v-ck"><span class="row-check va-k"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#06281c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" /></svg></span>Real consumer</div>
+                <div class="v-ck"><span class="row-check va-k"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#06281c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" /></svg></span>Service intent</div>
+                <div class="v-ck"><span class="row-check va-k"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#06281c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" /></svg></span>In coverage area</div>
+                <div class="v-ck"><span class="row-check va-k"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#06281c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" /></svg></span>Not a duplicate</div>
+              </div>
+            </div>
+            <div class="card vcard" id="vb">
+              <div class="v-top">
+                <span class="v-id">CL-8839</span>
+                <span class="v-vd"><span class="mini-k">Verdict</span>
+                  <span class="v-chip v-no" id="vb-chip"><span class="row-check x-dot"><svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17" fill="none" stroke="#3a0711" stroke-width="3.2" stroke-linecap="round" /></svg></span>Rejected</span>
+                </span>
+              </div>
+              <div class="v-conf"><span class="mini-k">Confidence</span><span class="v-pct" id="vb-pct">91%</span></div>
+              <div class="v-bar"><span class="v-fill" id="vb-fill"></span></div>
+              <div class="v-quote">“Caller was selling SEO services.”</div>
+              <div class="v-note">Flagged as solicitation, marked non-billable.</div>
+              <div class="v-tags">
+                <span class="v-tag v-tag-red" id="vb-t1">Solicitation</span>
+                <span class="v-tag" id="vb-t2">Non-billable · $0.00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== 5: campaign 12.8 - 15.2 ===== -->
+      <section id="s-camp" class="clip" data-start="12.8" data-duration="2.4" data-track-index="1">
+        <div class="scene-content">
+          <div id="p-copy">
+            <div id="p-kicker" class="kicker">Flexible pricing</div>
+            <div class="p-head">
+              <span class="mask" data-layout-allow-overflow="true"><span class="line p-line">One campaign.</span></span>
+              <span class="mask" data-layout-allow-overflow="true"><span class="line p-line grad-text">Four ways</span></span>
+              <span class="mask" data-layout-allow-overflow="true"><span class="line p-line grad-text">to get paid.</span></span>
+            </div>
+          </div>
+          <div id="p-card" class="card">
+            <div class="panel-head"><span>Campaign</span><span class="live"><span class="dot-live"></span>Active</span></div>
+            <div class="p-title">Roofing · US · 48 states</div>
+            <div class="p-row" id="pr-1">
+              <span class="tg"><span class="tg-on"></span><span class="tg-k"></span></span>
+              <span class="p-name">Pay Per Call</span>
+              <span class="p-price"><span class="p-amt">$85.00</span><span class="p-unit">per call</span></span>
+            </div>
+            <div class="p-row" id="pr-2">
+              <span class="tg"><span class="tg-on"></span><span class="tg-k"></span></span>
+              <span class="p-name">Pay Per Lead</span>
+              <span class="p-price"><span class="p-amt">$42.00</span><span class="p-unit">per lead</span></span>
+            </div>
+            <div class="p-row" id="pr-3">
+              <span class="tg"><span class="tg-on"></span><span class="tg-k"></span></span>
+              <span class="p-name">Pay Per Appointment</span>
+              <span class="p-price"><span class="p-amt">$180.00</span><span class="p-unit">per appointment</span></span>
+            </div>
+            <div class="p-row" id="pr-4">
+              <span class="tg"><span class="tg-on"></span><span class="tg-k"></span></span>
+              <span class="p-name">Pay Per Action</span>
+              <span class="p-price"><span class="p-amt">$310.00</span><span class="p-unit">per policy issued</span></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== 6: stats 15.2 - 17.6 ===== -->
+      <section id="s-stats" class="clip" data-start="15.2" data-duration="2.4" data-track-index="1">
+        <div class="scene-content">
+          <div id="n-head">
+            <div id="n-kicker" class="kicker">ProAxis · Live platform</div>
+            <div class="n-h"><span class="mask" data-layout-allow-overflow="true"><span id="n-line" class="line">By the <span class="grad-text">numbers.</span></span></span></div>
+          </div>
+          <div id="n-tiles">
+            <div class="card n-tile" id="nt-1"><span class="n-num" id="nv-1">2.4M</span><span class="n-lab">calls routed</span><span class="n-bar"><i class="n-fill"></i></span></div>
+            <div class="card n-tile" id="nt-2"><span class="n-num" id="nv-2">860K</span><span class="n-lab">leads delivered</span><span class="n-bar"><i class="n-fill"></i></span></div>
+            <div class="card n-tile" id="nt-3"><span class="n-num grad-text" id="nv-3">$52M</span><span class="n-lab">revenue processed</span><span class="n-bar"><i class="n-fill"></i></span></div>
+            <div class="card n-tile" id="nt-4"><span class="n-num" id="nv-4">1,800+</span><span class="n-lab">buyers &amp; publishers</span><span class="n-bar"><i class="n-fill"></i></span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== 7: lockup 17.6 - 20.4 ===== -->
+      <section id="s-lock" class="clip" data-start="17.6" data-duration="2.8" data-track-index="1">
+        <div class="scene-content">
+          <div id="e-tag">
+            <span class="mask" data-layout-allow-overflow="true"><span class="line e-w">Your publishers. Your buyers.</span></span>
+            <span class="mask" data-layout-allow-overflow="true"><span class="line e-w grad-text">Your margin.</span></span>
+          </div>
+          <div id="e-logo-wrap">
+            <div id="e-glow-wrap"><div id="e-glow" class="logo-glow"></div></div>
+            <div id="e-logo" class="logo">
+              <svg class="logo-mark" width="1.12em" height="0.8em" viewBox="0 0 112 80" aria-hidden="true">
+                <polygon id="e-chev-1" class="chev" points="10,4 36,4 62,40 36,76 10,76 36,40" fill="url(#chev-grad)" />
+                <polygon id="e-chev-2" class="chev" points="46,4 72,4 98,40 72,76 46,76 72,40" fill="url(#chev-grad-2)" />
+              </svg>
+              <span class="wordmark-mask" data-layout-allow-overflow="true"><span id="e-word" class="wordmark">ProAxis</span></span>
+            </div>
+          </div>
+          <div id="e-cta-row">
+            <div id="e-cta">
+              Launch your exchange · proaxis.ai
+              <svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== chevron wipe bands (transition accents) ===== -->
+      <div id="wipe-layer" class="clip" data-start="0" data-duration="20.4" data-track-index="2">
+        <div id="band-1" class="band" data-layout-allow-overflow="true" data-layout-allow-occlusion="true"><div class="band-inner"></div></div>
+        <div id="band-2" class="band" data-layout-allow-overflow="true" data-layout-allow-occlusion="true"><div class="band-inner"></div></div>
+      </div>
+      <!-- ===== audio: original music bed + bundled SFX (media-use library) ===== -->
+      <audio id="bgm" src="assets/audio/proaxis-standalone-bgm.mp3" data-start="0" data-duration="20.4" data-track-index="3" data-volume="0.75"></audio>
+      <audio id="sfx-01" src="assets/sfx/whoosh-short.mp3" data-start="0.15" data-duration="0.57" data-track-index="4" data-volume="0.35"></audio><!-- logo chevrons slide in -->
+      <audio id="sfx-02" src="assets/sfx/impact-bass-1.mp3" data-start="0.78" data-duration="2.12" data-track-index="4" data-volume="0.5"></audio><!-- logo swell -->
+      <audio id="sfx-03" src="assets/sfx/sparkle.mp3" data-start="1.25" data-duration="1.8" data-track-index="5" data-volume="0.22"></audio><!-- NEW pill -->
+      <audio id="sfx-04" src="assets/sfx/whoosh.mp3" data-start="2.1" data-duration="0.57" data-track-index="6" data-volume="0.4"></audio><!-- wipe band 1 into headline -->
+      <audio id="sfx-05" src="assets/sfx/ping.mp3" data-start="2.66" data-duration="1.32" data-track-index="7" data-volume="0.3"></audio><!-- "revenue." punch -->
+      <audio id="sfx-06" src="assets/sfx/whoosh-short.mp3" data-start="4.38" data-duration="0.57" data-track-index="4" data-volume="0.3"></audio><!-- routing scene in / publisher card -->
+      <audio id="sfx-07" src="assets/sfx/notification.mp3" data-start="4.72" data-duration="2.46" data-track-index="5" data-volume="0.4"></audio><!-- incoming call rings -->
+      <audio id="sfx-08" src="assets/sfx/whoosh-short.mp3" data-start="5.65" data-duration="0.57" data-track-index="4" data-volume="0.22"></audio><!-- call routes to auction -->
+      <audio id="sfx-09" src="assets/sfx/click-soft.mp3" data-start="6.0" data-duration="0.37" data-track-index="6" data-volume="0.4"></audio><!-- bid tick Pipe Pros -->
+      <audio id="sfx-10" src="assets/sfx/click-soft.mp3" data-start="6.16" data-duration="0.37" data-track-index="7" data-volume="0.4"></audio><!-- bid tick CoolAir HVAC -->
+      <audio id="sfx-11" src="assets/sfx/click-soft.mp3" data-start="6.32" data-duration="0.37" data-track-index="4" data-volume="0.4"></audio><!-- bid tick Summit Roofing -->
+      <audio id="sfx-12" src="assets/sfx/ping.mp3" data-start="6.7" data-duration="1.32" data-track-index="4" data-volume="0.35"></audio><!-- Pipe Pros wins -->
+      <audio id="sfx-13" src="assets/sfx/whoosh-short.mp3" data-start="7.1" data-duration="0.57" data-track-index="6" data-volume="0.22"></audio><!-- call routes to buyer -->
+      <audio id="sfx-14" src="assets/sfx/pop.mp3" data-start="7.5" data-duration="0.72" data-track-index="5" data-volume="0.25"></audio><!-- Connected -->
+      <audio id="sfx-15" src="assets/sfx/pop.mp3" data-start="8.25" data-duration="0.72" data-track-index="4" data-volume="0.3"></audio><!-- Billable badge -->
+      <audio id="sfx-16" src="assets/sfx/pop.mp3" data-start="8.42" data-duration="0.72" data-track-index="5" data-volume="0.22"></audio><!-- Buyer pays you $32 -->
+      <audio id="sfx-17" src="assets/sfx/pop.mp3" data-start="8.56" data-duration="0.72" data-track-index="6" data-volume="0.22"></audio><!-- You pay the publisher $20 -->
+      <audio id="sfx-18" src="assets/sfx/chime.mp3" data-start="9.2" data-duration="2.5" data-track-index="4" data-volume="0.38"></audio><!-- You keep $12 (cha-ching) -->
+      <audio id="sfx-19" src="assets/sfx/ping.mp3" data-start="9.22" data-duration="1.32" data-track-index="5" data-volume="0.28"></audio><!-- You keep $12 accent -->
+      <audio id="sfx-20" src="assets/sfx/whoosh.mp3" data-start="9.69" data-duration="0.57" data-track-index="6" data-volume="0.4"></audio><!-- wipe band 2 into AI Verdict -->
+      <audio id="sfx-21" src="assets/sfx/pop.mp3" data-start="10.62" data-duration="0.72" data-track-index="5" data-volume="0.25"></audio><!-- Qualified chip -->
+      <audio id="sfx-22" src="assets/sfx/pop.mp3" data-start="10.8" data-duration="0.72" data-track-index="6" data-volume="0.18"></audio><!-- check Real consumer -->
+      <audio id="sfx-23" src="assets/sfx/pop.mp3" data-start="10.89" data-duration="0.72" data-track-index="7" data-volume="0.18"></audio><!-- check Service intent -->
+      <audio id="sfx-24" src="assets/sfx/pop.mp3" data-start="10.98" data-duration="0.72" data-track-index="8" data-volume="0.18"></audio><!-- check In coverage area -->
+      <audio id="sfx-25" src="assets/sfx/pop.mp3" data-start="11.07" data-duration="0.72" data-track-index="9" data-volume="0.18"></audio><!-- check Not a duplicate -->
+      <audio id="sfx-26" src="assets/sfx/glitch-3.mp3" data-start="11.28" data-duration="3.1" data-track-index="10" data-volume="0.35"></audio><!-- Rejected verdict -->
+      <audio id="sfx-27" src="assets/sfx/pop.mp3" data-start="11.48" data-duration="0.72" data-track-index="5" data-volume="0.2"></audio><!-- Solicitation / Non-billable tags -->
+      <audio id="sfx-28" src="assets/sfx/whoosh-short.mp3" data-start="12.75" data-duration="0.57" data-track-index="4" data-volume="0.3"></audio><!-- campaign card in -->
+      <audio id="sfx-29" src="assets/sfx/click.mp3" data-start="13.5" data-duration="0.37" data-track-index="4" data-volume="0.35"></audio><!-- toggle Pay Per Call -->
+      <audio id="sfx-30" src="assets/sfx/click.mp3" data-start="13.75" data-duration="0.37" data-track-index="5" data-volume="0.35"></audio><!-- toggle Pay Per Lead -->
+      <audio id="sfx-31" src="assets/sfx/click.mp3" data-start="14.0" data-duration="0.37" data-track-index="4" data-volume="0.35"></audio><!-- toggle Pay Per Appointment -->
+      <audio id="sfx-32" src="assets/sfx/click.mp3" data-start="14.25" data-duration="0.37" data-track-index="5" data-volume="0.35"></audio><!-- toggle Pay Per Action -->
+      <audio id="sfx-33" src="assets/sfx/whoosh-short.mp3" data-start="15.15" data-duration="0.57" data-track-index="4" data-volume="0.3"></audio><!-- stats in -->
+      <audio id="sfx-34" src="assets/sfx/pop.mp3" data-start="15.38" data-duration="0.72" data-track-index="5" data-volume="0.18"></audio><!-- stat tile 1 -->
+      <audio id="sfx-35" src="assets/sfx/pop.mp3" data-start="15.46" data-duration="0.72" data-track-index="6" data-volume="0.18"></audio><!-- stat tile 2 -->
+      <audio id="sfx-36" src="assets/sfx/pop.mp3" data-start="15.54" data-duration="0.72" data-track-index="7" data-volume="0.18"></audio><!-- stat tile 3 -->
+      <audio id="sfx-37" src="assets/sfx/pop.mp3" data-start="15.62" data-duration="0.72" data-track-index="8" data-volume="0.18"></audio><!-- stat tile 4 -->
+      <audio id="sfx-38" src="assets/sfx/whoosh.mp3" data-start="17.29" data-duration="0.57" data-track-index="4" data-volume="0.4"></audio><!-- wipe band 3 into lockup -->
+      <audio id="sfx-39" src="assets/sfx/impact-bass-1.mp3" data-start="18.25" data-duration="2.12" data-track-index="4" data-volume="0.55"></audio><!-- lockup logo swell -->
+      <audio id="sfx-40" src="assets/sfx/chime.mp3" data-start="18.85" data-duration="1.55" data-track-index="5" data-volume="0.3"></audio><!-- CTA in -->
+    </div>
+
+    <script>
+      (function () {
+        var END = 20.4,
+          HOLD = 19.4;
+
+        // ---------- deterministic constellation ----------
+        function mulberry32(a) {
+          return function () {
+            a |= 0;
+            a = (a + 0x6d2b79f5) | 0;
+            var t = Math.imul(a ^ (a >>> 15), 1 | a);
+            t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+          };
+        }
+        var rnd = mulberry32(20261007);
+        var NS = "http://www.w3.org/2000/svg";
+        var pts = [];
+        var cols = 9,
+          rows = 5;
+        for (var gy = 0; gy < rows; gy++) {
+          for (var gx = 0; gx < cols; gx++) {
+            pts.push({
+              x: (gx + 0.15 + rnd() * 0.7) * (2080 / cols),
+              y: (gy + 0.15 + rnd() * 0.7) * (1160 / rows),
+              r: 1.6 + rnd() * 2.6,
+            });
+          }
+        }
+        var linesG = document.getElementById("net-lines");
+        var dotsG = document.getElementById("net-dots");
+        var lineEls = [];
+        for (var i = 0; i < pts.length; i++) {
+          for (var j = i + 1; j < pts.length; j++) {
+            var dx = pts[i].x - pts[j].x,
+              dy = pts[i].y - pts[j].y;
+            var d = Math.sqrt(dx * dx + dy * dy);
+            if (d < 300 && rnd() < 0.55) {
+              var ln = document.createElementNS(NS, "line");
+              ln.setAttribute("x1", pts[i].x.toFixed(1));
+              ln.setAttribute("y1", pts[i].y.toFixed(1));
+              ln.setAttribute("x2", pts[j].x.toFixed(1));
+              ln.setAttribute("y2", pts[j].y.toFixed(1));
+              ln.setAttribute("stroke", "rgba(130,140,255,0.22)");
+              ln.setAttribute("stroke-width", "1.2");
+              ln.setAttribute("stroke-dasharray", d.toFixed(1));
+              ln.setAttribute("stroke-dashoffset", d.toFixed(1));
+              linesG.appendChild(ln);
+              lineEls.push(ln);
+            }
+          }
+        }
+        var dotEls = [];
+        for (var k = 0; k < pts.length; k++) {
+          var c = document.createElementNS(NS, "circle");
+          c.setAttribute("cx", pts[k].x.toFixed(1));
+          c.setAttribute("cy", pts[k].y.toFixed(1));
+          c.setAttribute("r", pts[k].r.toFixed(2));
+          c.setAttribute("fill", k % 3 === 0 ? "#c9c2ff" : "#8f9bff");
+          c.setAttribute("opacity", "0");
+          dotsG.appendChild(c);
+          dotEls.push(c);
+        }
+
+        // headline waveform bars (deterministic heights)
+        var wave = document.getElementById("h-wave");
+        var waveEls = [];
+        for (var w = 0; w < 64; w++) {
+          var b = document.createElement("span");
+          b.className = "wv";
+          var hgt = 40 + Math.abs(Math.sin(w * 0.55) * Math.cos(w * 0.17)) * 240;
+          b.style.height = hgt.toFixed(0) + "px";
+          wave.appendChild(b);
+          waveEls.push(b);
+        }
+
+        var tl = gsap.timeline({ paused: true });
+
+        // count-up helper: tweens a proxy, writes formatted text (seek-safe)
+        function countUp(sel, to, fmt, at, dur, ease) {
+          var el = document.querySelector(sel);
+          var o = { v: 0 };
+          tl.fromTo(
+            o,
+            { v: 0 },
+            {
+              v: to,
+              duration: dur,
+              ease: ease || "power2.out",
+              immediateRender: false,
+              onUpdate: function () {
+                el.textContent = fmt(o.v);
+              },
+            },
+            at,
+          );
+        }
+        function money2(v) {
+          return "$" + v.toFixed(2);
+        }
+
+        // ---------- background ----------
+        tl.fromTo(dotEls, { opacity: 0 }, { opacity: 0.85, duration: 0.6, ease: "sine.out", stagger: { each: 0.012, from: "center" } }, 0.1);
+        tl.to(lineEls, { attr: { "stroke-dashoffset": 0 }, duration: 1.4, ease: "power2.inOut", stagger: { each: 0.006, from: "center" } }, 0.15);
+        var twinkle = dotEls.filter(function (_, idx) {
+          return idx % 4 === 1;
+        });
+        tl.to(twinkle, { opacity: 0.25, duration: 0.9, ease: "sine.inOut", yoyo: true, repeat: 15, stagger: { each: 0.07 } }, 1.2);
+        tl.fromTo("#net-wrap", { x: 0, y: 0 }, { x: -70, y: -24, duration: HOLD, ease: "none" }, 0);
+        tl.fromTo("#glow-a", { x: 0, y: 0, scale: 1 }, { x: 280, y: 130, scale: 1.12, duration: HOLD, ease: "sine.inOut" }, 0);
+        tl.fromTo("#glow-b", { x: 0, y: 0 }, { x: -340, y: -230, duration: HOLD, ease: "sine.inOut" }, 0);
+        tl.fromTo("#streak", { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 1.2, ease: "expo.out" }, 0.3);
+        tl.to("#streak", { opacity: 0, duration: 0.4, ease: "power2.in" }, 2.0);
+
+        // ---------- 1: logo sting ----------
+        tl.fromTo("#a-chev-1", { x: -420, opacity: 0 }, { x: 0, opacity: 1, duration: 0.55, ease: "expo.out" }, 0.2);
+        tl.fromTo("#a-chev-2", { x: -520, opacity: 0 }, { x: 0, opacity: 1, duration: 0.6, ease: "expo.out" }, 0.3);
+        tl.to(["#a-chev-1", "#a-chev-2"], { scale: 1.16, duration: 0.22, ease: "back.out(2)", stagger: 0.03 }, 0.78);
+        tl.to(["#a-chev-1", "#a-chev-2"], { scale: 1, duration: 0.35, ease: "power2.inOut" }, 1.0);
+        tl.fromTo("#a-glow", { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1.1, duration: 0.4, ease: "power2.out" }, 0.78);
+        tl.to("#a-glow", { opacity: 0.35, scale: 1.5, duration: 0.88, ease: "sine.out" }, 1.2);
+        tl.fromTo("#a-word", { xPercent: -105 }, { xPercent: 0, duration: 0.7, ease: "power4.out" }, 0.86);
+        tl.fromTo("#a-pill", { opacity: 0, y: 18, scale: 0.92 }, { opacity: 1, y: 0, scale: 1, duration: 0.7, ease: "sine.out" }, 1.25);
+        tl.fromTo("#a-group", { scale: 1 }, { scale: 1.03, duration: 0.7, ease: "sine.inOut" }, 1.4);
+        tl.to("#a-group", { scale: 0.9, opacity: 0, x: 260, duration: 0.26, ease: "power3.in" }, 2.12);
+        tl.to("#a-pill", { opacity: 0, duration: 0.2, ease: "power2.in" }, 2.14);
+        tl.to("#a-glow", { opacity: 0, duration: 0.26, ease: "power2.in" }, 2.12);
+
+        // ---------- chevron wipe bands ----------
+        function sweep(at) {
+          tl.fromTo("#band-1", { x: -900, opacity: 1 }, { x: 2300, duration: 0.62, ease: "expo.inOut", immediateRender: false }, at - 0.31);
+          tl.fromTo("#band-2", { x: -500, opacity: 1 }, { x: 2400, duration: 0.62, ease: "expo.inOut", immediateRender: false }, at - 0.24);
+        }
+        tl.set(["#band-1", "#band-2"], { x: -900 }, 0);
+        sweep(2.4);
+        sweep(10.0);
+        sweep(17.6);
+
+        // ---------- 2: headline ----------
+        var B = 2.4;
+        tl.fromTo(".h-w", { yPercent: 110 }, { yPercent: 0, duration: 0.5, ease: "power4.out", stagger: 0.06 }, B + 0.04);
+        tl.fromTo("#h-l2", { scale: 0.82, opacity: 0, filter: "blur(16px)" }, { scale: 1, opacity: 1, filter: "blur(0px)", duration: 0.6, ease: "expo.out" }, B + 0.26);
+        tl.fromTo("#h-rev", { backgroundPosition: "0% 50%" }, { backgroundPosition: "100% 50%", duration: 1.3, ease: "sine.inOut" }, B + 0.45);
+        tl.fromTo("#h-sub", { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, B + 0.62);
+        tl.fromTo(waveEls, { scaleY: 0.1 }, { scaleY: 1, duration: 0.5, ease: "back.out(1.6)", stagger: { each: 0.008, from: "center" } }, B + 0.1);
+        tl.to(waveEls, { scaleY: 0.45, duration: 0.3, ease: "sine.inOut", yoyo: true, repeat: 3, stagger: { each: 0.012, from: "edges" } }, B + 0.7);
+        tl.to([".h-l1", "#h-l2", "#h-sub"], { y: -60, opacity: 0, duration: 0.24, ease: "power2.in", stagger: 0.035 }, B + 1.72);
+        tl.to("#h-wave", { opacity: 0, duration: 0.24, ease: "power2.in" }, B + 1.76);
+
+        // ---------- 3: live routing ----------
+        var R = 4.4;
+        var S1 = R + 0.05,
+          S2 = R + 1.3,
+          S3 = R + 2.75,
+          S4 = R + 4.0;
+        tl.set([".st-on"], { opacity: 0 }, 0);
+        tl.set(["#sl1", "#sl2", "#sl3"], { scaleX: 0 }, 0);
+        tl.fromTo("#r-steps", { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.45, ease: "power3.out" }, S1);
+        // titles
+        var titles = ["#rt1", "#rt2", "#rt3", "#rt4"];
+        var starts = [S1, S2, S3, S4];
+        tl.set(titles, { opacity: 0 }, 0);
+        titles.forEach(function (t, idx) {
+          var at = starts[idx];
+          tl.fromTo(t, { yPercent: 100, opacity: 1 }, { yPercent: 0, opacity: 1, duration: 0.42, ease: "expo.out", immediateRender: false }, at);
+          tl.to("#so" + (idx + 1), { opacity: 0, duration: 0.15, ease: "power1.in" }, at + 0.05);
+          tl.fromTo("#st" + (idx + 1), { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2.4)", immediateRender: false }, at + 0.05);
+          if (idx > 0) tl.to("#sl" + idx, { scaleX: 1, duration: 0.3, ease: "power2.inOut" }, at - 0.1);
+          if (idx < titles.length - 1) {
+            tl.to(t, { yPercent: -100, duration: 0.2, ease: "power2.in" }, starts[idx + 1] - 0.16);
+          }
+        });
+        // flow sits lower until the money strip arrives
+        tl.fromTo("#r-flow", { y: 95 }, { y: 0, duration: 0.5, ease: "power3.inOut", immediateRender: false }, S4 - 0.1);
+        tl.set("#r-flow", { y: 95 }, 0);
+        // step 1: publisher card + ringing
+        tl.fromTo("#pub", { x: -120, opacity: 0 }, { x: 0, opacity: 1, duration: 0.55, ease: "expo.out" }, S1 + 0.05);
+        tl.fromTo(["#ring-1", "#ring-2"], { scale: 1, opacity: 0.8 }, { scale: 1.9, opacity: 0, duration: 0.7, ease: "sine.out", stagger: 0.35, repeat: 2 }, S1 + 0.3);
+        tl.to("#phone", { keyframes: [{ rotation: -14 }, { rotation: 14 }, { rotation: -10 }, { rotation: 10 }, { rotation: 0 }], duration: 0.5, ease: "none" }, S1 + 0.3);
+        tl.to("#phone", { keyframes: [{ rotation: -14 }, { rotation: 14 }, { rotation: -10 }, { rotation: 10 }, { rotation: 0 }], duration: 0.5, ease: "none" }, S1 + 0.95);
+        // other cards wait
+        tl.set(["#auc", "#buy", "#r-money", ".link-dot"], { opacity: 0 }, 0);
+        tl.set(["#lf-1", "#lf-2"], { scaleX: 0 }, 0);
+        // step 2: route to auction
+        tl.to("#lf-1", { scaleX: 1, duration: 0.35, ease: "power2.inOut" }, S2 - 0.05);
+        tl.fromTo("#ld-1", { x: 0, opacity: 1 }, { x: 120, opacity: 1, duration: 0.35, ease: "power2.inOut", immediateRender: false }, S2 - 0.05);
+        tl.to("#ld-1", { opacity: 0, duration: 0.12, ease: "power1.in" }, S2 + 0.3);
+        tl.fromTo("#auc", { x: 60, opacity: 0, scale: 0.96 }, { x: 0, opacity: 1, scale: 1, duration: 0.5, ease: "power3.out", immediateRender: false }, S2 + 0.12);
+        tl.set(".bid", { opacity: 0 }, 0);
+        tl.set(["#bid-hl", "#win-tag", "#auc-cap"], { opacity: 0 }, 0);
+        ["#bid-1", "#bid-2", "#bid-3"].forEach(function (b, idx) {
+          var at = S2 + 0.3 + idx * 0.16;
+          tl.fromTo(b, { x: 30, opacity: 0 }, { x: 0, opacity: 1, duration: 0.3, ease: "power2.out", immediateRender: false }, at);
+        });
+        countUp("#amt-3", 25, function (v) { return "$" + Math.round(v); }, S2 + 0.62, 0.32);
+        countUp("#amt-2", 28, function (v) { return "$" + Math.round(v); }, S2 + 0.46, 0.32);
+        countUp("#amt-1", 32, function (v) { return "$" + Math.round(v); }, S2 + 0.3, 0.32);
+        // winner
+        var WIN = S2 + 1.0;
+        tl.fromTo("#bid-hl", { opacity: 0, scaleX: 0.6 }, { opacity: 1, scaleX: 1, duration: 0.3, ease: "back.out(1.8)", immediateRender: false }, WIN);
+        tl.to("#bid-1", { color: "#ffffff", duration: 0.2, ease: "sine.out" }, WIN);
+        tl.to(["#bid-2", "#bid-3"], { opacity: 0.45, duration: 0.25, ease: "sine.out" }, WIN + 0.05);
+        tl.fromTo("#win-tag", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2.6)", immediateRender: false }, WIN + 0.08);
+        tl.fromTo("#auc-cap", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.35, ease: "power2.out", immediateRender: false }, WIN + 0.12);
+        // step 3: route to buyer
+        tl.to("#lf-2", { scaleX: 1, duration: 0.35, ease: "power2.inOut" }, S3 - 0.05);
+        tl.fromTo("#ld-2", { x: 0, opacity: 1 }, { x: 120, opacity: 1, duration: 0.35, ease: "power2.inOut", immediateRender: false }, S3 - 0.05);
+        tl.to("#ld-2", { opacity: 0, duration: 0.12, ease: "power1.in" }, S3 + 0.3);
+        tl.fromTo("#buy", { x: 60, opacity: 0, scale: 0.96 }, { x: 0, opacity: 1, scale: 1, duration: 0.5, ease: "power3.out", immediateRender: false }, S3 + 0.12);
+        tl.set(["#buy-status", "#bill"], { opacity: 0 }, 0);
+        tl.fromTo("#buy-status", { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.3, ease: "power2.out", immediateRender: false }, S3 + 0.35);
+        countUp("#timer", 252, function (v) {
+          var s = Math.round(v);
+          var ss = s % 60;
+          return Math.floor(s / 60) + ":" + (ss < 10 ? "0" : "") + ss;
+        }, S3 + 0.4, 0.8, "power1.inOut");
+        tl.fromTo("#bill", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.32, ease: "back.out(2.4)", immediateRender: false }, S3 + 1.1);
+        // step 4: the money
+        tl.set(["#m-in", "#m-out", "#m-keep", "#op-1", "#op-2"], { opacity: 0 }, 0);
+        tl.set("#r-money", { opacity: 1 }, S4 - 0.1);
+        tl.fromTo("#m-in", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out", immediateRender: false }, S4);
+        tl.fromTo("#op-1", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "sine.out", immediateRender: false }, S4 + 0.12);
+        tl.fromTo("#m-out", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out", immediateRender: false }, S4 + 0.14);
+        tl.fromTo("#op-2", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "sine.out", immediateRender: false }, S4 + 0.26);
+        tl.fromTo("#m-keep", { opacity: 0, y: 40, scale: 0.92 }, { opacity: 1, y: 0, scale: 1, duration: 0.45, ease: "back.out(1.8)", immediateRender: false }, S4 + 0.28);
+        countUp("#mv-in", 32, money2, S4 + 0.02, 0.45);
+        countUp("#mv-out", 20, money2, S4 + 0.16, 0.45);
+        countUp("#mv-keep", 12, money2, S4 + 0.3, 0.5);
+        tl.to("#m-keep", { scale: 1.06, duration: 0.18, ease: "power2.out" }, S4 + 0.82);
+        tl.to("#m-keep", { scale: 1, duration: 0.3, ease: "sine.inOut" }, S4 + 1.0);
+        tl.fromTo("#mv-keep", { textShadow: "0 0 0px rgba(52,211,153,0)" }, { textShadow: "0 0 34px rgba(52,211,153,0.9)", duration: 0.25, ease: "power2.out", immediateRender: false }, S4 + 0.82);
+        // exit (band sweep at 10.0 covers the cut)
+        tl.to(["#r-head", "#r-flow", "#r-money"], { opacity: 0, x: 120, duration: 0.24, ease: "power3.in", stagger: 0.03 }, 9.72);
+
+        // ---------- 4: AI verdict ----------
+        var V = 10.0;
+        tl.fromTo("#v-kicker", { opacity: 0, y: -14 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, V + 0.08);
+        tl.fromTo("#v-line", { yPercent: 110 }, { yPercent: 0, duration: 0.5, ease: "power4.out" }, V + 0.12);
+        tl.fromTo("#va", { x: -90, opacity: 0 }, { x: 0, opacity: 1, duration: 0.55, ease: "expo.out" }, V + 0.3);
+        tl.fromTo("#va-fill", { scaleX: 0 }, { scaleX: 1, duration: 0.55, ease: "power2.out" }, V + 0.5);
+        countUp("#va-pct", 96, function (v) { return Math.round(v) + "%"; }, V + 0.5, 0.55);
+        tl.fromTo("#va-chip", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2.4)" }, V + 0.62);
+        tl.fromTo(".va-k", { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.28, ease: "back.out(2.6)", stagger: 0.09 }, V + 0.8);
+        tl.fromTo("#vb", { x: 90, opacity: 0 }, { x: 0, opacity: 1, duration: 0.55, ease: "expo.out" }, V + 0.95);
+        tl.fromTo("#vb-fill", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.out" }, V + 1.12);
+        countUp("#vb-pct", 91, function (v) { return Math.round(v) + "%"; }, V + 1.12, 0.5);
+        tl.fromTo("#vb-chip", { opacity: 0, scale: 1.4 }, { opacity: 1, scale: 1, duration: 0.2, ease: "power4.out" }, V + 1.28);
+        tl.to("#vb .v-top", { keyframes: [{ x: -10 }, { x: 9 }, { x: -6 }, { x: 4 }, { x: 0 }], duration: 0.26, ease: "none" }, V + 1.3);
+        tl.fromTo("#vb-chip", { filter: "drop-shadow(0 0 0px rgba(255,93,115,0))" }, { filter: "drop-shadow(0 0 16px rgba(255,93,115,0.9))", duration: 0.2, yoyo: true, repeat: 1, ease: "sine.inOut", immediateRender: false }, V + 1.3);
+        tl.fromTo(["#vb-t1", "#vb-t2"], { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.3, ease: "power2.out", stagger: 0.1 }, V + 1.48);
+        tl.to(["#v-head", "#v-cards"], { opacity: 0, y: -50, duration: 0.24, ease: "power2.in", stagger: 0.04 }, V + 2.5);
+
+        // ---------- 5: campaign ----------
+        var P = 12.8;
+        tl.fromTo("#p-kicker", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" }, P + 0.05);
+        tl.fromTo(".p-line", { yPercent: 110 }, { yPercent: 0, duration: 0.5, ease: "power4.out", stagger: 0.08 }, P + 0.06);
+        tl.fromTo("#p-card", { x: 140, opacity: 0 }, { x: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, P + 0.1);
+        tl.fromTo(".p-row", { x: 40, opacity: 0 }, { x: 0, opacity: 0.55, duration: 0.35, ease: "power2.out", stagger: 0.05 }, P + 0.25);
+        var tgs = gsap.utils.toArray("#s-camp .tg-on");
+        var knobs = gsap.utils.toArray("#s-camp .tg-k");
+        tl.set(tgs, { opacity: 0 }, 0);
+        ["#pr-1", "#pr-2", "#pr-3", "#pr-4"].forEach(function (r, idx) {
+          var at = P + 0.7 + idx * 0.25;
+          tl.fromTo(knobs[idx], { x: 0 }, { x: 32, duration: 0.22, ease: "back.out(2)" }, at);
+          tl.fromTo(tgs[idx], { opacity: 0 }, { opacity: 1, duration: 0.18, ease: "sine.out", immediateRender: false }, at);
+          tl.to(r, { opacity: 1, borderColor: "rgba(166,107,255,0.55)", duration: 0.22, ease: "sine.out" }, at);
+        });
+        tl.fromTo(".p-line.grad-text", { backgroundPosition: "0% 50%" }, { backgroundPosition: "100% 50%", duration: 1.4, ease: "sine.inOut", immediateRender: false }, P + 0.5);
+        tl.to(["#p-copy", "#p-card"], { opacity: 0, x: -100, duration: 0.24, ease: "power3.in", stagger: 0.04 }, P + 2.12);
+
+        // ---------- 6: stats ----------
+        var N = 15.2;
+        tl.fromTo("#n-kicker", { opacity: 0, y: -14 }, { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }, N + 0.12);
+        tl.fromTo("#n-line", { yPercent: 110 }, { yPercent: 0, duration: 0.5, ease: "power4.out" }, N + 0.05);
+        tl.fromTo(".n-tile", { opacity: 0, y: 60, scale: 0.94 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.5)", stagger: 0.08 }, N + 0.18);
+        var fills = gsap.utils.toArray("#s-stats .n-fill");
+        var fillTo = [0.92, 0.66, 0.82, 0.74];
+        fills.forEach(function (f, idx) {
+          tl.fromTo(f, { scaleX: 0 }, { scaleX: fillTo[idx], duration: 1.0, ease: "power2.out" }, N + 0.3 + idx * 0.08);
+        });
+        countUp("#nv-1", 2.4, function (v) { return v.toFixed(1) + "M"; }, N + 0.3, 1.0);
+        countUp("#nv-2", 860, function (v) { return Math.round(v) + "K"; }, N + 0.38, 1.0);
+        countUp("#nv-3", 52, function (v) { return "$" + Math.round(v) + "M"; }, N + 0.46, 1.0);
+        countUp("#nv-4", 1800, function (v) {
+          var n = Math.round(v / 10) * 10;
+          return n.toLocaleString("en-US") + "+";
+        }, N + 0.54, 1.0);
+        tl.fromTo("#nv-3", { backgroundPosition: "0% 50%" }, { backgroundPosition: "100% 50%", duration: 1.2, ease: "sine.inOut", immediateRender: false }, N + 0.6);
+        tl.to(["#n-head", "#n-tiles"], { opacity: 0, scale: 0.95, duration: 0.24, ease: "power2.in", stagger: 0.03 }, 17.3);
+
+        // ---------- 7: lockup ----------
+        var E = 17.6;
+        tl.fromTo("#e-chev-1", { x: -480, opacity: 0 }, { x: 0, opacity: 1, duration: 0.6, ease: "expo.out" }, E + 0.04);
+        tl.fromTo("#e-chev-2", { x: -580, opacity: 0 }, { x: 0, opacity: 1, duration: 0.65, ease: "expo.out" }, E + 0.1);
+        tl.to(["#e-chev-1", "#e-chev-2"], { scale: 1.14, duration: 0.2, ease: "back.out(2)", stagger: 0.03 }, E + 0.65);
+        tl.to(["#e-chev-1", "#e-chev-2"], { scale: 1, duration: 0.35, ease: "power2.inOut" }, E + 0.85);
+        tl.fromTo("#e-glow", { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1.15, duration: 0.45, ease: "power2.out" }, E + 0.65);
+        tl.to("#e-glow", { opacity: 0.55, scale: 1.35, duration: 0.7, ease: "sine.out" }, E + 1.1);
+        tl.fromTo("#e-word", { xPercent: -105 }, { xPercent: 0, duration: 0.75, ease: "power4.out" }, E + 0.72);
+        tl.fromTo(".e-w", { yPercent: 115 }, { yPercent: 0, duration: 0.55, ease: "power3.out", stagger: 0.12 }, E + 1.0);
+        tl.fromTo("#e-cta", { opacity: 0, y: 30, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.8)" }, E + 1.25);
+        // final hold: the frame is still from 19.4 to 20.4
+
+        window.__timelines["proaxis-standalone"] = tl;
+        tl.seek(0);
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,26 @@
+{
+  "category": "kinetic-type",
+  "secondary_category": ["webpage", "stat", "logo-reveal"],
+  "duration_s": 20.4,
+  "fps": 30,
+  "canvas": { "w": 1920, "h": 1080, "aspect": "16:9" },
+  "style": "Matches the first ProAxis promo (videos/proaxis-motion): deep navy/indigo field with seeded constellation network, hairline grid and drifting indigo/purple glows; white Montserrat 700/900 headlines with indigo->purple gradient emphasis; JetBrains Mono small-caps kickers; glassy dark UI panels; green checks; double-chevron mark + ProAxis wordmark; chevron wipe bands on the major cuts; one orange CTA pill.",
+  "palette": ["#0b0b2a", "#1a1650", "#6c7cff", "#a66bff", "#5b4bff", "#34d399", "#ff5d73", "#ff8a00", "#ffffff", "#b9bde6"],
+  "font": "Montserrat (400/700/800/900) display, JetBrains Mono (400/700) kickers/numerals; both HF-bundled",
+  "beat_grid": { "bpm": 150, "beat_s": 0.4, "origin_s": 0.0, "note": "every scene cut is a whole beat: 2.4, 4.4, 10.0, 12.8, 15.2, 17.6" },
+  "beats": [0.8, 2.4, 4.4, 5.6, 6.8, 8.0, 8.8, 10.0, 12.8, 15.2, 17.6, 18.4],
+  "export": "mp4",
+  "asset_needs": [],
+  "brief": "A ~20s product promo for ProAxis Standalone (run your own call exchange). The chevron mark assembles over a drawing constellation with a NEW · PROAXIS STANDALONE pill, a chevron band sweeps into 'Turn every call into revenue.', then the hero: a live routing sequence built as glassy UI cards wired left to right. A publisher's call rings in, travels down a routing line into a live auction where three bids tick in and Pipe Pros wins in 0.2s, travels on to the buyer who connects (timer runs to 4:12, Billable), and the money strip resolves the margin: $32 in, $20 out, you keep $12. AI Verdict cards contrast a qualified and a rejected call, a campaign card switches on four pricing models, four stat tiles count up, and a final chevron sweep lands the ProAxis lockup with 'Your publishers. Your buyers. Your margin.' and the orange CTA, holding still to the end. Dominant motion idea: the call travelling left to right along the chevron 'push'.",
+  "content": {
+    "scenes": [
+      { "id": "s-logo", "start": 0, "end": 2.4, "text": "ProAxis / NEW · PROAXIS STANDALONE" },
+      { "id": "s-head", "start": 2.4, "end": 4.4, "text": "Turn every call / into revenue. / Run your own call exchange. Live today, not next quarter.", "emphasis_words": ["revenue."] },
+      { "id": "s-route", "start": 4.4, "end": 10.0, "text": "1 A publisher sends a call / 2 ProAxis finds the best buyer / 3 Your buyer answers / The money on that call" },
+      { "id": "s-verdict", "start": 10.0, "end": 12.8, "text": "AI Verdict / Know what's real before you pay for it." },
+      { "id": "s-camp", "start": 12.8, "end": 15.2, "text": "One campaign. Four ways to get paid." },
+      { "id": "s-stats", "start": 15.2, "end": 17.6, "text": "By the numbers: 2.4M / 860K / $52M / 1,800+" },
+      { "id": "s-lock", "start": 17.6, "end": 20.4, "text": "Your publishers. Your buyers. Your margin. / Launch your exchange · proaxis.ai", "hold_from": 19.4 }
+    ]
+  }
+}

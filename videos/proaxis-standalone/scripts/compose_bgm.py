@@ -1,20 +1,23 @@
-"""Original 15s electronic bed for the ProAxis promo, synthesized with numpy.
+"""Original 20.4s electronic bed for ProAxis Standalone, synthesized with numpy.
 
-Beat grid: 133.33 BPM (beat = 0.45s), origin 0.30s, so beats land on the
-scene cuts at 2.55 (drop), 4.80 (features) and 10.20 (dashboard); feature
-beats every 0.9s line up with every second beat. Writes a 48k stereo WAV.
+Beat grid: 150 BPM (beat = 0.40s), origin 0.00s, so every scene cut is a whole
+beat: 2.4 (drop, end of the logo sting), 4.4 (routing), 10.0 (AI Verdict),
+12.8 (campaign), 15.2 (stats) and 17.6 (lockup: final hit + bell). A snare
+roll builds 16.4 -> 17.6; the bed fades out over the final still hold.
+Writes a 48k stereo WAV.
 """
 import sys
 import numpy as np
 
 SR = 48000
-DUR = 15.0
+DUR = 20.4
 N = int(SR * DUR)
-BEAT = 0.45
-ORIGIN = 0.30
-DROP = ORIGIN + 5 * BEAT          # 2.55
-BUILD_START = 11.10
-FINAL = 12.20
+BEAT = 0.40
+ORIGIN = 0.0
+DROP = ORIGIN + 6 * BEAT          # 2.4
+BUILD_START = 16.40
+FINAL = 17.60
+CUTS = [4.4, 10.0, 12.8, 15.2]    # mid-video scene cuts get a soft crash
 rng = np.random.default_rng(7)
 
 
@@ -94,13 +97,16 @@ BASS = {"Dm": 38, "Bb": 34, "F": 41, "C": 36, "Fadd9": 29}
 BAR = 4 * BEAT
 # (chord, start, end)
 PROG = [("Dm", 0.0, DROP)]
-for i, c in enumerate(["Dm", "Bb", "F", "C", "Dm", "Bb"]):
+i = 0
+while DROP + i * BAR < FINAL - 1e-6:
+    c = ["Dm", "Bb", "F", "C"][i % 4]
     s = DROP + i * BAR
     PROG.append((c, s, min(s + BAR, FINAL)))
+    i += 1
 PROG.append(("Fadd9", FINAL, DUR))
 
 kick_times = [DROP + k * BEAT for k in range(int((BUILD_START + 0.45 - DROP) / BEAT) + 1)]
-kick_times = [k for k in kick_times if k < BUILD_START + 0.46]
+kick_times = [k for k in kick_times if k < BUILD_START + 0.01]
 
 # sidechain envelope
 side = np.ones(N)
@@ -138,7 +144,7 @@ for name, s, e in PROG[1:-1]:
     k = 0
     while True:
         at = s + k * BEAT + BEAT / 2
-        if at >= e or at >= BUILD_START + 0.45:
+        if at >= e or at >= BUILD_START:
             break
         n = int(BEAT * 0.48 * SR)
         f = note_hz(BASS[name])
@@ -206,6 +212,10 @@ place(drums, kick(1.15), FINAL)
 n = int(2.6 * SR)
 crash = highpass_fft(rng.standard_normal(n), 4000) * np.exp(-t_arr(n) / 0.7) * 0.16
 place(drums, crash, FINAL)
+# soft crashes on the mid-video scene cuts
+for ct in CUTS:
+    n = int(1.6 * SR)
+    place(drums, highpass_fft(rng.standard_normal(n), 5000) * np.exp(-t_arr(n) / 0.45) * 0.07, ct)
 # intro crash-less reverse swell into drop
 n = int(1.4 * SR)
 rev = highpass_fft(rng.standard_normal(n), 2500) * (np.linspace(0, 1, n) ** 4) * 0.18
@@ -225,7 +235,7 @@ for name, s, e in PROG[1:-1]:
         n = int(0.28 * SR)
         f = note_hz(m)
         sig = (saw(f, n, 8) + 0.5 * np.sin(2 * np.pi * 2 * f * t_arr(n))) * np.exp(-t_arr(n) / 0.07)
-        if at < 4.8:
+        if at < 4.4:
             sig *= 0.5  # sparser under the headline
         place(arpL, sig, at)
         place(arpR, sig, at)
@@ -261,7 +271,7 @@ L = reverb(L, mix=0.22, seed=3)
 R = reverb(R, mix=0.22, seed=4)
 # fade out tail
 fade = np.ones(N)
-fs = int(13.9 * SR)
+fs = int(19.5 * SR)
 fade[fs:] = np.linspace(1, 0, N - fs) ** 1.5
 fade[: int(0.02 * SR)] = np.linspace(0, 1, int(0.02 * SR))
 L, R = L * fade, R * fade
