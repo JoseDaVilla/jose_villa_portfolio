@@ -1,0 +1,4 @@
+snapshots/*
+!snapshots/contact-sheet-*.jpg
+renders/
+node_modules/

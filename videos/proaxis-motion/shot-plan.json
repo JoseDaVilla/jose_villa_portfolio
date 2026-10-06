@@ -1,0 +1,43 @@
+{
+  "category": "kinetic-type",
+  "secondary_category": "logo-reveal",
+  "duration_s": 15,
+  "fps": 30,
+  "canvas": { "w": 1920, "h": 1080, "aspect": "16:9" },
+  "style": "Premium dark SaaS. Deep navy/indigo field with a faint constellation network and hairline grid (from the ProAxis site). Bold geometric display type, indigo-to-purple gradient emphasis, one orange CTA accent. Confident, fast, clean; the double-chevron mark is the single recurring motif (logo pieces, chevron wipe bands, list bullets).",
+  "palette": ["#0b0b2a", "#1a1650", "#6c7cff", "#a66bff", "#5b4bff", "#ff8a00", "#ffffff", "#b9bde6"],
+  "font": "Montserrat (400/700/900) for display, JetBrains Mono (400/700) for kickers/labels; both HF-bundled",
+  "beats": [0.75, 2.6, 4.8, 5.7, 6.6, 7.5, 8.4, 9.3, 10.2, 12.2, 13.4],
+  "export": "mp4",
+  "audio": "none (no narration, no music)",
+  "asset_needs": [],
+  "local_assets": [
+    { "role": "dashboard-front", "path": "assets/dashboard-roi.png", "source": "public/proaxis (5).png", "treatment": "browser frame + perspective tilt + slow push" },
+    { "role": "dashboard-back", "path": "assets/dashboard-analytics.png", "source": "public/proaxis (3).png", "treatment": "dimmed parallax card behind front" }
+  ],
+  "brief": "A 15s brand promo for ProAxis, the white-label agency platform. The double-chevron mark slides in piece by piece over a drawing constellation, blooms, and the wordmark wipes out from behind it. A chevron band sweeps the frame into the site headline 'Run your entire creative studio from one platform'. Six features then punch through a left-anchored kinetic slot (mask-rise names, mono index, progress rule) while a workspace panel on the right ticks each one off, so all six stay readable. A tilted real dashboard flash sells the multi-tenant, white-label reality, then a second chevron sweep lands the closing line 'Launch your agency in days, not months.' over the ProAxis lockup with an orange 'Start free at proaxis.ai' CTA pill, holding still to the end. Dominant motion idea: the chevron 'push' to the right.",
+  "block": "logo-outro (adapted inline: piece-by-piece assembly, expand/close, glow bloom, tagline + URL pill) + caption-kinetic-slam language (hand-authored slot, no caption block fits a feature list)",
+  "customize": {
+    "logo": "inline SVG double chevron (gradient #6c7cff->#a66bff) + 'ProAxis' wordmark, white Montserrat 700",
+    "tagline": "Launch your agency in days, not months.",
+    "url": "proaxis.ai",
+    "cta": "Start free at proaxis.ai"
+  },
+  "content": {
+    "logo": "inline-svg",
+    "tagline": "Launch your agency in days, not months.",
+    "url": "proaxis.ai",
+    "scenes": [
+      { "id": "s-logo", "start": 0, "end": 2.6, "text": "ProAxis / THE WHITE-LABEL AGENCY PLATFORM", "emphasis_words": ["ProAxis"], "emotion": "confident reveal", "motion": "chevron pieces slide in (expo.out, ripple), expand/close + glow bloom, wordmark clip-wipe, mono kicker letter-spacing settle; exit scale-down + chevron band sweep", "beats": [0.75], "tag": "Hook" },
+      { "id": "s-head", "start": 2.6, "end": 4.8, "text": "Run your entire / creative studio / from one platform", "emphasis_words": ["creative studio"], "emotion": "ambition", "motion": "line 1 word mask-rise stagger, line 2 gradient scale+blur punch with shimmer, line 3 slide from left; exit up", "beats": [3.0], "tag": "Build" },
+      { "id": "s-feat", "start": 4.8, "end": 10.2, "text": "CRM / Training Academy / Drag & Drop Forms / Stripe Connect / Smart Calendars / Partner Commissions", "emphasis_words": ["Stripe Connect"], "emotion": "momentum", "motion": "per-feature 0.9s: name lines mask-rise (expo.out), subline slide, fast mask exit up; right panel highlight bar travels row to row, rows check off; progress rule steps; oversized faded index numeral behind", "beats": [5.7, 6.6, 7.5, 8.4, 9.3], "tag": "Build" },
+      { "id": "s-dash", "start": 10.2, "end": 12.2, "text": "Your brand. Every client. / One workspace per client, all under your logo.", "emphasis_words": ["Your brand."], "emotion": "proof", "motion": "real dashboard in browser frame swings in with perspective tilt, back card parallax, chips pop (back.out); slow push", "beats": [10.6], "tag": "Punch" },
+      { "id": "s-lock", "start": 12.2, "end": 15, "text": "Launch your agency in days, not months. / ProAxis / Start free at proaxis.ai", "emphasis_words": ["not months."], "emotion": "resolve", "motion": "chevron band sweep in, logo pieces assemble + glow bloom, tagline rise, CTA pill pop; dead-still hold from 14.0", "beats": [12.2, 13.4], "tag": "Resolve" }
+    ],
+    "layout": {
+      "background": "full-duration clip: radial indigo/purple glows, hairline grid, seeded constellation SVG (draw-on, twinkle, slow drift), vignette",
+      "s-feat": "split frame: left kinetic slot (x 160-1100) + right workspace panel (x 1180-1760)",
+      "s-dash": "split frame: left copy (x 160-760) + right tilted browser frame (x 820-1800)"
+    }
+  }
+}
